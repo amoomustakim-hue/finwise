@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { AuthProvider, useAuth } from './auth'
+import { ModeProvider } from './mode'
 import Budgets from './pages/Budgets'
 import Category from './pages/Category'
 import Home from './pages/Home'
@@ -11,6 +12,7 @@ import Onboarding from './pages/Onboarding'
 import Review from './pages/Review'
 import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
+import Transactions from './pages/Transactions'
 
 /** Sends people to the right place based on sign-in and onboarding state. */
 function Guard({ need, children }: { need: 'guest' | 'onboarding' | 'ready'; children: ReactNode }) {
@@ -26,6 +28,7 @@ function Guard({ need, children }: { need: 'guest' | 'onboarding' | 'ready'; chi
 export default function App() {
   return (
     <AuthProvider>
+      <ModeProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Guard need="guest"><Landing /></Guard>} />
@@ -37,10 +40,12 @@ export default function App() {
           <Route path="/review" element={<Guard need="ready"><Review /></Guard>} />
           <Route path="/budgets" element={<Guard need="ready"><Budgets /></Guard>} />
           <Route path="/category" element={<Guard need="ready"><Category /></Guard>} />
+          <Route path="/transactions" element={<Guard need="ready"><Transactions /></Guard>} />
           <Route path="/mono/return" element={<Guard need="ready"><MonoReturn /></Guard>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      </ModeProvider>
     </AuthProvider>
   )
 }

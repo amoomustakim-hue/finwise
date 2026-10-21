@@ -35,12 +35,16 @@ export default function TransactionList({
   onLoaded,
   category,
   month,
+  limit = 500,
+  seeAllLink = false,
 }: {
   mode: Mode
   version?: number
   onLoaded?: (hasDemo: boolean) => void
   category?: string
   month?: string
+  limit?: number // rows shown (home shows a short preview)
+  seeAllLink?: boolean
 }) {
   const [txs, setTxs] = useState<Tx[] | null>(null)
   const [error, setError] = useState('')
@@ -75,11 +79,14 @@ export default function TransactionList({
   return (
     <section>
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="font-semibold">Transactions</h2>
-        {hasDemo && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">Sample data</span>}
+        <h2 className="font-semibold">{seeAllLink ? 'Recent transactions' : `${txs.length} transaction${txs.length === 1 ? '' : 's'}`}</h2>
+        <div className="flex items-center gap-3">
+          {hasDemo && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">Sample data</span>}
+          {seeAllLink && <Link to="/transactions" className="text-sm font-semibold text-brand">See all</Link>}
+        </div>
       </div>
       <ul className="divide-y divide-slate-100 rounded-2xl bg-white ring-1 ring-slate-200">
-        {txs.slice(0, 100).map((t) => (
+        {txs.slice(0, limit).map((t) => (
           <li key={t.id} className="flex items-center justify-between gap-3 px-4 py-3">
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">{t.narration}</p>
@@ -94,6 +101,11 @@ export default function TransactionList({
           </li>
         ))}
       </ul>
+      {seeAllLink && txs.length > limit && (
+        <Link to="/transactions" className="mt-2 block text-center text-sm font-semibold text-brand">
+          See all transactions →
+        </Link>
+      )}
     </section>
   )
 }

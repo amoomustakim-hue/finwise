@@ -2,9 +2,11 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { useAuth } from '../auth'
-import { Button, ErrorText, Screen } from '../components/ui'
+import AppShell from '../components/AppShell'
+import { Button, ErrorText } from '../components/ui'
 import { api, type Mode } from '../lib/api'
 import { formatDate } from '../lib/format'
+import { useMode } from '../mode'
 
 const BANKS = ['Zenith Bank', 'GTBank', 'Access Bank', 'First Bank', 'UBA', 'OPay', 'Kuda', 'Moniepoint', 'PalmPay', 'Other']
 
@@ -25,8 +27,8 @@ export default function Import() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const both = !!user?.uses_personal && !!user?.uses_business
-  const defaultMode: Mode = (params.get('mode') as Mode) ?? (user?.uses_personal ? 'personal' : 'business')
-  const [mode, setMode] = useState<Mode>(defaultMode)
+  const { mode: currentMode } = useMode()
+  const [mode, setMode] = useState<Mode>((params.get('mode') as Mode | null) ?? currentMode)
   const [result, setResult] = useState<ImportResult | null>(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState<'import' | 'demo' | 'mono' | null>(null)
@@ -99,13 +101,13 @@ export default function Import() {
   }
 
   return (
-    <Screen>
-      <Link to="/home" className="mb-4 text-sm text-slate-500">← Back</Link>
-      <h1 className="text-2xl font-bold">Add your transactions</h1>
-      <p className="mb-6 mt-2 text-slate-600">
+    <AppShell title="Add your transactions">
+      <p className="mb-6 max-w-3xl text-slate-600">
         Connect your bank, or download a statement from your bank app (PDF or CSV) and upload it here.
       </p>
 
+      <div className="grid items-start gap-6 lg:grid-cols-2">
+      <div>
       {mono?.enabled && (
         <div className="mb-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
           <div className="flex items-center justify-between">
@@ -154,9 +156,11 @@ export default function Import() {
         <ErrorText>{error}</ErrorText>
         <Button type="submit" disabled={busy !== null}>{busy === 'import' ? 'Reading statement…' : 'Import statement'}</Button>
       </form>
+      </div>
 
+      <div className="flex flex-col gap-4">
       {result && (
-        <div className="mt-4 rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-900 ring-1 ring-emerald-200">
+        <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-900 ring-1 ring-emerald-200">
           <p className="font-semibold">
             Imported {result.imported} transactions · {formatDate(result.from)} – {formatDate(result.to)}
           </p>
@@ -169,7 +173,7 @@ export default function Import() {
         </div>
       )}
 
-      <div className="mt-8 rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-200">
+      <div className="rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-200">
         <p className="font-semibold text-amber-900">No statement handy?</p>
         <p className="mt-1 text-sm text-amber-800">
           Load realistic sample data to explore FinWise. It's clearly marked as sample data and can be removed anytime.
@@ -178,6 +182,8 @@ export default function Import() {
           {busy === 'demo' ? 'Loading…' : 'Load sample data'}
         </Button>
       </div>
-    </Screen>
+      </div>
+      </div>
+    </AppShell>
   )
 }

@@ -1,8 +1,21 @@
 // Minimal UI building blocks. Rejoice's designs will restyle these in one place.
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react'
 
+/** Layout for signed-out and onboarding screens: phone = single column; desktop = brand panel + form. */
 export function Screen({ children }: { children: ReactNode }) {
-  return <main className="mx-auto flex min-h-dvh max-w-md flex-col px-4 py-8">{children}</main>
+  return (
+    <div className="min-h-dvh lg:grid lg:grid-cols-2">
+      <aside className="hidden flex-col justify-between bg-brand p-12 text-white lg:flex">
+        <span className="text-3xl font-bold">FinWise</span>
+        <div>
+          <p className="text-4xl font-semibold leading-tight">Turn your financial data into smarter decisions.</p>
+          <p className="mt-4 max-w-md text-lg text-white/80">Understand where your money goes, see what's coming, and act before it becomes a problem.</p>
+        </div>
+        <p className="text-sm text-white/70">Personal and business finance in one place.</p>
+      </aside>
+      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 py-8 lg:justify-center lg:py-12">{children}</main>
+    </div>
+  )
 }
 
 export function Button({

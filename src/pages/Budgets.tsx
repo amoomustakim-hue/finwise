@@ -1,15 +1,16 @@
 // Set this month's category budgets. Pre-filled from the last 3 months' average when none are set.
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router'
-import { Button, ErrorText, Screen } from '../components/ui'
-import { api, type Mode } from '../lib/api'
+import { useNavigate } from 'react-router'
+import AppShell from '../components/AppShell'
+import { Button, ErrorText } from '../components/ui'
+import { api } from '../lib/api'
+import { useMode } from '../mode'
 import { formatNaira } from '../lib/format'
 
 type Item = { category: string; amountKobo: number | null; suggestedKobo: number | null; avgMonthlyKobo: number; spentKobo: number }
 
 export default function Budgets() {
-  const [params] = useSearchParams()
-  const mode = (params.get('mode') === 'business' ? 'business' : 'personal') as Mode
+  const { mode } = useMode()
   const navigate = useNavigate()
   const [items, setItems] = useState<Item[] | null>(null)
   const [hasBudgets, setHasBudgets] = useState(false)
@@ -47,10 +48,9 @@ export default function Budgets() {
   const total = Object.values(values).reduce((n, v) => n + (Number(v.replace(/[^\d.]/g, '')) || 0), 0)
 
   return (
-    <Screen>
-      <Link to="/home" className="mb-4 text-sm text-slate-500">← Back</Link>
-      <h1 className="text-2xl font-bold">{mode === 'business' ? 'Operating budget' : 'Monthly budget'}</h1>
-      <p className="mb-4 mt-1 text-sm text-slate-600">
+    <AppShell title={mode === 'business' ? 'Operating budget' : 'Monthly budget'}>
+      <div className="max-w-3xl">
+      <p className="mb-4 text-sm text-slate-600">
         {hasBudgets
           ? 'Change any amount. Leave a category empty for no budget.'
           : 'We filled these in from your average over the last 3 months. Adjust them to fit your plan.'}{' '}
@@ -85,7 +85,8 @@ export default function Budgets() {
       )}
       <p className="mt-4 text-sm text-slate-600">Total planned: <span className="font-semibold">{formatNaira(total * 100)}</span></p>
       <ErrorText>{error}</ErrorText>
-      <Button className="mt-3" onClick={save} disabled={busy || !items}>{busy ? 'Saving…' : 'Save budgets'}</Button>
-    </Screen>
+      <Button className="mt-3 lg:w-auto lg:px-8" onClick={save} disabled={busy || !items}>{busy ? 'Saving…' : 'Save budgets'}</Button>
+      </div>
+    </AppShell>
   )
 }
