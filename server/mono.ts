@@ -11,7 +11,8 @@
 import { db } from './db.js'
 import { categoriseWithRules } from './categorise/engine.js'
 import type { ParsedRow } from './import/parse-utils.js'
-import { findOrCreateAccount, saveRows } from './import/save.js'
+import { findOrCreateAccount, insertRows } from './import/save.js'
+import { notifyNewTransactions } from './notify.js'
 
 const BASE = 'https://api.withmono.com'
 
@@ -86,8 +87,8 @@ function toRow(t: AnyObj): ParsedRow | null {
 /** Fetch details + transactions for one linked account and save them. */
 export async function syncMonoAccount(accountRowId: string): Promise<{ imported: number; status: string }> {
   const rows = (await db()`
-    select a.id, a.user_id, a.mode, a.mono_account_id from accounts a where a.id = ${accountRowId} and a.source = 'mono'`) as {
-    id: string; user_id: string; mode: 'personal' | 'business'; mono_account_id: string
+    select a.id, a.user_id, a.mode, a.mono_account_id, a.last_synced_at from accounts a where a.id = ${accountRowId} and a.source = 'mono'`) as {
+    id: string; user_id: string; mode: 'personal' | 'business'; mono_account_id: string; last_synced_at: string | null
   }[]
   const acct = rows[0]
   if (!acct) throw new Error('Mono account not found')
@@ -116,10 +117,12 @@ export async function syncMonoAccount(accountRowId: string): Promise<{ imported:
   const parsed = list.map(toRow).filter((r): r is ParsedRow => r !== null)
   if (list.length && !parsed.length) console.warn('Mono transactions did not match expected shape; sample:', JSON.stringify(list[0]).slice(0, 500))
 
-  const imported = await saveRows({ userId: acct.user_id, accountId: acct.id, mode: acct.mode, source: 'mono', rows: parsed })
+  const newIds = await insertRows({ userId: acct.user_id, accountId: acct.id, mode: acct.mode, source: 'mono', rows: parsed })
   await db()`update accounts set last_synced_at = now() where id = ${acct.id}`
   await categoriseWithRules(acct.user_id)
-  return { imported, status }
+  // Only alert for genuinely new activity: the first sync is just history.
+  if (acct.last_synced_at && newIds.length) await notifyNewTransactions(acct.user_id, newIds)
+  return { imported: newIds.length, status }
 }
 
 /**

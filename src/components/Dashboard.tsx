@@ -70,6 +70,7 @@ export default function Dashboard({
   beforeMain,
   insights,
   afterMain,
+  side,
   onData,
 }: {
   mode: Mode
@@ -77,6 +78,7 @@ export default function Dashboard({
   beforeMain?: ReactNode // e.g. the "new transaction" card
   insights?: ReactNode // the insights panel
   afterMain?: ReactNode // e.g. the transaction list
+  side?: ReactNode // extra cards for the side column (e.g. alerts)
   onData?: (d: DashboardData) => void
 }) {
   const [data, setData] = useState<DashboardData | null>(null)
@@ -100,6 +102,7 @@ export default function Dashboard({
         {!data && !error && <p className="text-slate-500">Loading your dashboard…</p>}
         {beforeMain}
         {afterMain}
+        {side}
       </div>
     )
   }
@@ -311,6 +314,7 @@ export default function Dashboard({
           {forecast}
           {weekdays}
           {upcoming}
+          {side}
         </div>
       </div>
     </div>

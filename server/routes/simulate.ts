@@ -5,7 +5,8 @@ import { requireUser } from '../auth.js'
 import { categoriseWithRules } from '../categorise/engine.js'
 import { db } from '../db.js'
 import { handle, HttpError, readJson } from '../http.js'
-import { findOrCreateAccount, saveRows } from '../import/save.js'
+import { findOrCreateAccount, insertRows } from '../import/save.js'
+import { notifyNewTransactions } from '../notify.js'
 
 const Body = z.object({
   mode: z.enum(['personal', 'business']),
@@ -36,7 +37,7 @@ export const POST = handle(async (request) => {
   })
   // Unique narration suffix so repeated demos aren't treated as duplicates.
   const stamp = new Date()
-  await saveRows({
+  const ids = await insertRows({
     userId: user.id, accountId, mode, source: 'demo',
     rows: [{
       date: stamp.toISOString().slice(0, 10),
@@ -50,5 +51,7 @@ export const POST = handle(async (request) => {
     update transactions set occurred_at = now()
     where id = (select id from transactions where account_id = ${accountId} order by created_at desc limit 1)`
   await categoriseWithRules(user.id)
+  // Same alert a real new bank transaction would trigger.
+  await notifyNewTransactions(user.id, ids)
   return Response.json({ ok: true })
 })

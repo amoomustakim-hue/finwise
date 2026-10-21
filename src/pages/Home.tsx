@@ -5,6 +5,7 @@ import { useAuth } from '../auth'
 import AppShell from '../components/AppShell'
 import Dashboard from '../components/Dashboard'
 import Insights from '../components/Insights'
+import AlertsCard from '../components/AlertsCard'
 import ReviewCard, { type ReviewItem } from '../components/ReviewCard'
 import TransactionList from '../components/TransactionList'
 import { api } from '../lib/api'
@@ -121,7 +122,7 @@ export default function Home() {
         </Link>
       }
     >
-      <Dashboard mode={mode} version={version} beforeMain={reviewBlock} insights={<Insights mode={mode} version={version} />} afterMain={listBlock} />
+      <Dashboard mode={mode} version={version} beforeMain={reviewBlock} insights={<Insights mode={mode} version={version} />} afterMain={listBlock} side={<AlertsCard />} />
     </AppShell>
   )
 }

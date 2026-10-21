@@ -1,7 +1,19 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/api/((?!router).*)", "destination": "/api/router?__path=$1" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    {
+      "source": "/api/((?!router).*)",
+      "destination": "/api/router?__path=$1"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/jobs/sync",
+      "schedule": "0 7 * * *"
+    }
   ]
 }

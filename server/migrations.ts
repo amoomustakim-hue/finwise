@@ -138,4 +138,30 @@ export const migrations: { id: string; statements: string[] }[] = [
       )`,
     ],
   },
+  {
+    id: '004_push_and_pay',
+    statements: [
+      // One row per device/browser that allowed notifications.
+      `create table push_subscriptions (
+        id uuid primary key default gen_random_uuid(),
+        user_id uuid not null references users(id) on delete cascade,
+        endpoint text not null unique,
+        p256dh text not null,
+        auth text not null,
+        created_at timestamptz not null default now()
+      )`,
+      `create index push_subscriptions_user_idx on push_subscriptions(user_id)`,
+      // The account people should pay into when they scan this user's QR (per mode).
+      // Shared publicly by design (it's what you'd write on a receipt), so stored in full.
+      `create table pay_profiles (
+        user_id uuid not null references users(id) on delete cascade,
+        mode text not null check (mode in ('personal', 'business')),
+        display_name text not null,
+        bank_name text not null,
+        account_number text not null check (account_number ~ '^[0-9]{10}$'),
+        updated_at timestamptz not null default now(),
+        primary key (user_id, mode)
+      )`,
+    ],
+  },
 ]

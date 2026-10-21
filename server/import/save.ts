@@ -40,14 +40,19 @@ function dedupeKey(accountId: string, row: ParsedRow, occurrence: number): strin
 }
 
 /** Insert rows in one statement. Returns how many were new. */
-export async function saveRows(opts: {
+export async function saveRows(opts: Parameters<typeof insertRows>[0]): Promise<number> {
+  return (await insertRows(opts)).length
+}
+
+/** Insert rows in one statement. Returns the ids of rows that were new (duplicates skipped). */
+export async function insertRows(opts: {
   userId: string
   accountId: string
   mode: Mode
   source: Source
   rows: ParsedRow[]
-}): Promise<number> {
-  if (!opts.rows.length) return 0
+}): Promise<string[]> {
+  if (!opts.rows.length) return []
   const seen = new Map<string, number>()
   const keys = opts.rows.map((r) => {
     const base = `${r.date}|${r.direction}|${r.amountKobo}|${r.narration}`
@@ -76,5 +81,5 @@ export async function saveRows(opts: {
       opts.rows.map((r) => r.balanceKobo ?? null),
     ],
   )) as { id: string }[]
-  return inserted.length
+  return inserted.map((r) => r.id)
 }
