@@ -1,9 +1,9 @@
 // GET  /api/mono/sync — is Mono available, is it test mode, and the user's linked accounts.
 // POST /api/mono/sync — refresh every Mono account the user has linked (called when the app opens).
-import { requireUser } from '../../server/auth.js'
-import { db } from '../../server/db.js'
-import { handle } from '../../server/http.js'
-import { monoEnabled, monoTestMode, syncMonoAccount } from '../../server/mono.js'
+import { requireUser } from '../../auth.js'
+import { db } from '../../db.js'
+import { handle } from '../../http.js'
+import { monoEnabled, monoTestMode, syncMonoAccount } from '../../mono.js'
 
 async function linked(userId: string) {
   return (await db()`

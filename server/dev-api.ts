@@ -1,5 +1,5 @@
-// Vite dev-server plugin: serves files in /api the same way Vercel does in production,
-// so `npm run dev` runs front end and API together without `vercel dev`.
+// Vite dev-server plugin: sends every /api/* request through api/router.ts, exactly as
+// vercel.json does in production, so `npm run dev` runs front end and API together.
 import type { Plugin } from 'vite'
 import { loadEnv } from 'vite'
 
@@ -13,17 +13,10 @@ export function devApi(): Plugin {
 
       server.middlewares.use(async (req, res, next) => {
         const url = new URL(req.url ?? '/', 'http://localhost')
-        // /api/me -> api/me.ts, /api/auth/login -> api/auth/login.ts
-        const match = url.pathname.match(/^\/api\/([\w-]+(?:\/[\w-]+)*)$/)
-        if (!match) return next()
+        if (!url.pathname.startsWith('/api/')) return next()
 
         try {
-          const mod = await server.ssrLoadModule(`/api/${match[1]}.ts`)
-          const handler = mod[req.method ?? 'GET']
-          if (typeof handler !== 'function') {
-            res.statusCode = 405
-            return res.end('Method not allowed')
-          }
+          const router = await server.ssrLoadModule('/api/router.ts')
 
           // Convert the Node request into a Web Request, like Vercel's runtime does.
           const chunks: Buffer[] = []
@@ -35,7 +28,7 @@ export function devApi(): Plugin {
             body: req.method === 'GET' || req.method === 'HEAD' ? undefined : body,
           })
 
-          const response: Response = await handler(request)
+          const response: Response = await router.dispatch(request)
           res.statusCode = response.status
           response.headers.forEach((value, key) => res.setHeader(key, value))
           res.end(Buffer.from(await response.arrayBuffer()))

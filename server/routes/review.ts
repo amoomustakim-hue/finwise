@@ -1,11 +1,11 @@
 // GET  /api/review?mode=  — transactions that need the user: unanswered ones first, then suggestions to confirm.
 // POST /api/review        — confirm or change a category; optionally remember it for that merchant/person.
 import { z } from 'zod'
-import { categoriesFor, isValidCategory, kindOf, type Mode } from '../shared/categories.js'
-import { requireUser } from '../server/auth.js'
-import { applyRules } from '../server/categorise/rules.js'
-import { db } from '../server/db.js'
-import { handle, HttpError, readJson } from '../server/http.js'
+import { categoriesFor, isValidCategory, kindOf, type Mode } from '../../shared/categories.js'
+import { requireUser } from '../auth.js'
+import { applyRules } from '../categorise/rules.js'
+import { db } from '../db.js'
+import { handle, HttpError, readJson } from '../http.js'
 
 type Row = {
   id: string

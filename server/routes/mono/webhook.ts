@@ -1,7 +1,7 @@
 // POST /api/mono/webhook — Mono bank-data events. Configure this URL and its secret in the Mono dashboard.
 import { timingSafeEqual } from 'node:crypto'
-import { handle, HttpError } from '../../server/http.js'
-import { attachMonoAccount, readWebhook, syncMonoAccount } from '../../server/mono.js'
+import { handle, HttpError } from '../../http.js'
+import { attachMonoAccount, readWebhook, syncMonoAccount } from '../../mono.js'
 
 function secretMatches(given: string | null): boolean {
   const expected = process.env.MONO_WEBHOOK_SECRET ?? ''

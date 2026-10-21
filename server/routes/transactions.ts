@@ -1,7 +1,7 @@
 // GET /api/transactions?mode=personal|business — newest first, with each row's data source.
-import { requireUser } from '../server/auth.js'
-import { db } from '../server/db.js'
-import { handle, HttpError } from '../server/http.js'
+import { requireUser } from '../auth.js'
+import { db } from '../db.js'
+import { handle, HttpError } from '../http.js'
 
 export const GET = handle(async (request) => {
   const user = await requireUser(request)

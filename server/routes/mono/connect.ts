@@ -1,10 +1,10 @@
 // POST /api/mono/connect { mode } — start Mono Connect; returns the hosted link URL to open.
 import { randomBytes } from 'node:crypto'
 import { z } from 'zod'
-import { requireUser } from '../../server/auth.js'
-import { db } from '../../server/db.js'
-import { handle, HttpError, readJson } from '../../server/http.js'
-import { initiateLink, monoEnabled } from '../../server/mono.js'
+import { requireUser } from '../../auth.js'
+import { db } from '../../db.js'
+import { handle, HttpError, readJson } from '../../http.js'
+import { initiateLink, monoEnabled } from '../../mono.js'
 
 const Body = z.object({ mode: z.enum(['personal', 'business']) })
 

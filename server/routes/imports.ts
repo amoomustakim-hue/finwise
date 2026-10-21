@@ -1,12 +1,12 @@
 // POST /api/imports — upload a bank statement (PDF or CSV) as multipart form data.
 // Fields: file, mode ('personal' | 'business'), bankName.
-import { requireUser } from '../server/auth.js'
-import { categoriseWithRules } from '../server/categorise/engine.js'
-import { parseCsv } from '../server/import/csv.js'
-import { reconcile, type ParsedRow } from '../server/import/parse-utils.js'
-import { parseStatementText, pdfText } from '../server/import/pdf.js'
-import { findOrCreateAccount, saveRows } from '../server/import/save.js'
-import { handle, HttpError } from '../server/http.js'
+import { requireUser } from '../auth.js'
+import { categoriseWithRules } from '../categorise/engine.js'
+import { parseCsv } from '../import/csv.js'
+import { reconcile, type ParsedRow } from '../import/parse-utils.js'
+import { parseStatementText, pdfText } from '../import/pdf.js'
+import { findOrCreateAccount, saveRows } from '../import/save.js'
+import { handle, HttpError } from '../http.js'
 
 const MAX_BYTES = 4 * 1024 * 1024 // Vercel caps request bodies at 4.5 MB
 

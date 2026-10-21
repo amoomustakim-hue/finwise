@@ -1,6 +1,6 @@
 // POST /api/auth/logout — end the current session.
-import { endSession } from '../../server/auth.js'
-import { handle } from '../../server/http.js'
+import { endSession } from '../../auth.js'
+import { handle } from '../../http.js'
 
 export const POST = handle(async (request) => {
   const cookie = await endSession(request)

@@ -8,9 +8,9 @@ import {
   recordFailure,
   startSession,
   type User,
-} from '../../server/auth.js'
-import { db } from '../../server/db.js'
-import { clientIp, handle, HttpError, readJson } from '../../server/http.js'
+} from '../../auth.js'
+import { db } from '../../db.js'
+import { clientIp, handle, HttpError, readJson } from '../../http.js'
 
 const Body = z.object({
   email: z.string().trim().toLowerCase().email('Please enter a valid email'),

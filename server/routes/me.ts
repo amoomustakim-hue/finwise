@@ -1,9 +1,9 @@
 // GET /api/me   — the signed-in user (or null).
 // PATCH /api/me — save onboarding choices: which modes they use and their business name.
 import { z } from 'zod'
-import { currentUser, requireUser, type User } from '../server/auth.js'
-import { db } from '../server/db.js'
-import { handle, readJson } from '../server/http.js'
+import { currentUser, requireUser, type User } from '../auth.js'
+import { db } from '../db.js'
+import { handle, readJson } from '../http.js'
 
 export const GET = handle(async (request) => {
   return Response.json({ user: await currentUser(request) })

@@ -1,5 +1,5 @@
 // GET /api/health — proves the API and the database are reachable.
-import { db } from '../server/db.js'
+import { db } from '../db.js'
 
 export async function GET(): Promise<Response> {
   try {

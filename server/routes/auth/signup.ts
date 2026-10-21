@@ -1,8 +1,8 @@
 // POST /api/auth/signup — create an account and sign in.
 import { z } from 'zod'
-import { hashPassword, startSession, type User } from '../../server/auth.js'
-import { db } from '../../server/db.js'
-import { handle, HttpError, readJson } from '../../server/http.js'
+import { hashPassword, startSession, type User } from '../../auth.js'
+import { db } from '../../db.js'
+import { handle, HttpError, readJson } from '../../http.js'
 
 const Body = z.object({
   name: z.string().trim().min(2, 'Please enter your name').max(80),

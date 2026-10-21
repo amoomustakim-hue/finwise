@@ -100,7 +100,7 @@ export async function categoriseWithAi(userId: string, maxBatches = 2): Promise<
     }
     const items = [...groups.values()].slice(0, AI_BATCH).map((g, i) => ({ i, ...g[0] }))
 
-    let answers: { i: number; category: string | null; confidence: number }[]
+    let answers: { i: number; category?: string | null; confidence: number }[]
     try {
       answers = await askAi(items)
     } catch (err) {

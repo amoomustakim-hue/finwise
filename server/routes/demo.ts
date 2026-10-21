@@ -1,11 +1,11 @@
 // POST   /api/demo — load (or reload) labelled sample data for each mode the user has turned on.
 // DELETE /api/demo — remove all sample data (real imports are untouched).
-import { requireUser } from '../server/auth.js'
-import { categoriseWithRules } from '../server/categorise/engine.js'
-import { db } from '../server/db.js'
-import { businessDemo, personalDemo } from '../server/demo/generate.js'
-import { handle } from '../server/http.js'
-import { findOrCreateAccount, saveRows } from '../server/import/save.js'
+import { requireUser } from '../auth.js'
+import { categoriseWithRules } from '../categorise/engine.js'
+import { db } from '../db.js'
+import { businessDemo, personalDemo } from '../demo/generate.js'
+import { handle } from '../http.js'
+import { findOrCreateAccount, saveRows } from '../import/save.js'
 
 const DEMO_BANK = 'FinWise Sample Bank'
 

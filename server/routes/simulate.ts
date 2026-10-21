@@ -1,11 +1,11 @@
 // POST /api/simulate — demo helper: add one new *sample* transaction dated now, so the
 // "new transaction detected" confirmation flow can be shown live. Always source = 'demo'.
 import { z } from 'zod'
-import { requireUser } from '../server/auth.js'
-import { categoriseWithRules } from '../server/categorise/engine.js'
-import { db } from '../server/db.js'
-import { handle, HttpError, readJson } from '../server/http.js'
-import { findOrCreateAccount, saveRows } from '../server/import/save.js'
+import { requireUser } from '../auth.js'
+import { categoriseWithRules } from '../categorise/engine.js'
+import { db } from '../db.js'
+import { handle, HttpError, readJson } from '../http.js'
+import { findOrCreateAccount, saveRows } from '../import/save.js'
 
 const Body = z.object({
   mode: z.enum(['personal', 'business']),
