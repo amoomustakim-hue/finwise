@@ -2,7 +2,7 @@
 // a sync until the bank's data is ready (Mono may take a little while to fetch it).
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { Screen } from '../components/ui'
+import { StatusScreen, statusLink } from '../components/ui'
 import { api } from '../lib/api'
 
 type SyncResult = { results: { imported?: number; status?: string; error?: string }[]; accounts: unknown[] }
@@ -50,12 +50,12 @@ export default function MonoReturn() {
   }, [navigate])
 
   return (
-    <Screen>
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-        {!done && <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand border-t-transparent" />}
-        <p className="text-lg font-semibold">{message}</p>
-        {done && <Link to="/home" className="font-semibold text-brand">Go to home</Link>}
-      </div>
-    </Screen>
+    <StatusScreen busy={!done} title={message} body={!done ? 'This can take up to a minute while your bank shares your transactions.' : undefined}>
+      {done && (
+        <Link to="/home" className={statusLink}>
+          Go to Overview
+        </Link>
+      )}
+    </StatusScreen>
   )
 }

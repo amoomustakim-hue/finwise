@@ -7,6 +7,7 @@ import AppShell from '../components/AppShell'
 import BalanceChart from '../components/BalanceChart'
 import { api, type Mode } from '../lib/api'
 import { formatNaira } from '../lib/format'
+import { card, Icon, type IconName } from '../app/kit'
 import { useMode } from '../mode'
 
 type Field =
@@ -57,10 +58,21 @@ type Result = {
   assumptions: string[]
 }
 
-const VERDICT = {
-  ok: { label: 'Looks manageable', icon: '✓', cls: 'bg-[#e2f3ea] text-[#1f6b4f] ring-[#bfe3cf]' },
-  tight: { label: 'Possible, but tight', icon: '!', cls: 'bg-[#fff4e0] text-[#7a4b00] ring-[#f2d29b]' },
-  shortfall: { label: 'You could run short', icon: '✕', cls: 'bg-[#fde4e4] text-[#c03535] ring-[#f5c2c2]' },
+const VERDICT: Record<Result['verdict'], { label: string; icon: IconName; fg: string; bg: string; ring: string }> = {
+  ok: { label: 'Looks manageable', icon: 'check', fg: '#1f6b4f', bg: '#e2f3ea', ring: '#bfe3cf' },
+  tight: { label: 'Possible, but tight', icon: 'alert', fg: '#9a5b00', bg: '#fff4e0', ring: '#f2d29b' },
+  shortfall: { label: 'You could run short', icon: 'x', fg: '#c03535', bg: '#fde4e4', ring: '#f5c2c2' },
+}
+
+const ICONS: Record<string, IconName> = {
+  purchase: 'bag',
+  salary_delay: 'calendar',
+  expense_change: 'trend',
+  save_monthly: 'piggy',
+  hire: 'users',
+  revenue_drop: 'trendDown',
+  late_payment: 'receipt',
+  supplier_increase: 'box',
 }
 
 const fmtDay = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })
@@ -108,51 +120,78 @@ export default function Simulator() {
 
   const spendCats = categoriesFor(mode, 'debit').filter((c) => c !== 'Bank charges')
 
+  const v = result && VERDICT[result.verdict]
+  const shown = (f: Field) =>
+    f.kind === 'naira' ? formatNaira(Number(values[f.key])) : f.kind === 'pct' ? `${values[f.key]}%` : `${values[f.key]} day${values[f.key] === 1 ? '' : 's'}`
+
   return (
     <AppShell title="Decision Simulator">
-      <p className="mb-5 max-w-3xl text-sm text-[#6a6165]">
-        Test a decision before you make it. We project your balance day by day for the next 60 days, using your own
-        regular payments and spending habits, then show what changes.
+      <p className="-mt-3 mb-5 text-center text-[13px] text-[#7a7175] lg:-mt-5 lg:max-w-[640px] lg:text-left">
+        Test a decision before you make it. We project your balance for the next 60 days from your own regular payments and habits.
       </p>
 
-      <div className="grid items-start gap-6 lg:grid-cols-12">
+      <div className="grid items-start gap-6 lg:grid-cols-[380px_1fr]">
         {/* Inputs */}
-        <section className="flex flex-col gap-4 lg:col-span-4">
-          <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
-            {presets.map((p) => (
-              <button
-                key={p.type}
-                onClick={() => setType(p.type)}
-                aria-pressed={p.type === type}
-                className={`rounded-[12px] bg-white p-3 text-left ring-1 transition ${p.type === type ? 'ring-2 ring-brand' : 'ring-black/[0.06] hover:ring-black/10'}`}
-              >
-                <span className="block text-sm font-semibold">{p.title}</span>
-                <span className="block text-xs text-[#8a8185]">{p.question}</span>
-              </button>
-            ))}
+        <section className="flex min-w-0 flex-col gap-4">
+          <div className="-mx-5 flex gap-2.5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] lg:mx-0 lg:grid lg:grid-cols-2 lg:overflow-visible lg:px-0">
+            {presets.map((p) => {
+              const on = p.type === type
+              return (
+                <button
+                  key={p.type}
+                  onClick={() => setType(p.type)}
+                  aria-pressed={on}
+                  className={`flex w-[150px] shrink-0 flex-col items-start rounded-[14px] p-3 text-left transition lg:w-auto ${on ? 'bg-white ring-[1.5px] ring-brand' : 'bg-[#f4f2f3] hover:bg-[#ece8ea]'}`}
+                >
+                  <span className={`grid h-9 w-9 place-items-center rounded-[10px] ${on ? 'bg-brand text-white' : 'bg-white text-[#5a5155]'}`}>
+                    <Icon name={ICONS[p.type] ?? 'swap'} />
+                  </span>
+                  <span className={`mt-2.5 block text-[13px] font-semibold ${on ? 'text-brand' : ''}`}>{p.title}</span>
+                  <span className="block text-[11px] leading-snug text-[#8a8185]">{p.question}</span>
+                </button>
+              )
+            })}
           </div>
 
-          <div className="flex flex-col gap-4 rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06]">
+          <div className={`${card} flex flex-col gap-5 p-5`}>
+            <p className="text-[15px] font-semibold">{preset.question}</p>
             {preset.fields.map((f) =>
               f.kind === 'category' ? (
-                <label key={f.key} className="block text-sm">
-                  <span className="mb-1 block font-medium">{f.label}</span>
-                  <select
-                    className="w-full rounded-[12px] border border-black/10 bg-white px-3 py-2"
-                    value={String(values[f.key] ?? '')}
-                    onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
-                  >
-                    {spendCats.map((c) => <option key={c}>{c}</option>)}
-                  </select>
+                <label key={f.key} className="block">
+                  <span className="mb-1.5 block text-[12px] font-semibold uppercase tracking-wide text-[#7a7175]">{f.label}</span>
+                  <span className="relative flex items-center">
+                    <select
+                      className="w-full appearance-none rounded-[12px] bg-[#f4f2f3] px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-brand/30"
+                      value={String(values[f.key] ?? '')}
+                      onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
+                    >
+                      {spendCats.map((c) => <option key={c}>{c}</option>)}
+                    </select>
+                    <Icon name="chevronDown" className="pointer-events-none absolute right-3 h-4 w-4" />
+                  </span>
                 </label>
               ) : (
-                <label key={f.key} className="block text-sm">
-                  <span className="mb-1 flex justify-between font-medium">
-                    {f.label}
-                    <span className="text-brand">
-                      {f.kind === 'naira' ? formatNaira(Number(values[f.key])) : f.kind === 'pct' ? `${values[f.key]}%` : `${values[f.key]} day${values[f.key] === 1 ? '' : 's'}`}
-                    </span>
+                <label key={f.key} className="block">
+                  <span className="mb-1 flex items-baseline justify-between">
+                    <span className="text-[12px] font-semibold uppercase tracking-wide text-[#7a7175]">{f.label}</span>
+                    {f.kind !== 'naira' && <span className="text-[17px] font-semibold text-brand">{shown(f)}</span>}
                   </span>
+                  {f.kind === 'naira' && (
+                    <span className="mb-2 flex items-center gap-1 border-b border-black/[0.08] pb-1.5 focus-within:border-brand">
+                      <span className="text-[24px] font-semibold">₦</span>
+                      <input
+                        inputMode="numeric"
+                        aria-label={`${f.label} in naira`}
+                        className="min-w-0 flex-1 bg-transparent text-[24px] font-semibold outline-none"
+                        value={Math.round(Number(values[f.key]) / 100).toLocaleString('en-NG')}
+                        onChange={(e) => {
+                          const n = Number(e.target.value.replace(/[^\d]/g, '')) || 0
+                          setValues((v) => ({ ...v, [f.key]: Math.min(n, f.max) * 100 }))
+                        }}
+                      />
+                      <Icon name="pencil" className="h-4 w-4 text-[#8a8185]" />
+                    </span>
+                  )}
                   <input
                     type="range"
                     className="w-full accent-[var(--color-brand)]"
@@ -162,18 +201,6 @@ export default function Simulator() {
                     value={Number(values[f.key])}
                     onChange={(e) => setValues((v) => ({ ...v, [f.key]: Number(e.target.value) }))}
                   />
-                  {f.kind === 'naira' && (
-                    <input
-                      inputMode="numeric"
-                      aria-label={`${f.label} in naira`}
-                      className="mt-2 w-full rounded-[12px] border border-black/10 px-3 py-2"
-                      value={Math.round(Number(values[f.key]) / 100)}
-                      onChange={(e) => {
-                        const n = Number(e.target.value.replace(/[^\d]/g, '')) || 0
-                        setValues((v) => ({ ...v, [f.key]: Math.min(n, f.max) * 100 }))
-                      }}
-                    />
-                  )}
                 </label>
               ),
             )}
@@ -181,45 +208,40 @@ export default function Simulator() {
         </section>
 
         {/* Results */}
-        <section className="flex flex-col gap-4 lg:col-span-8" aria-live="polite">
-          {error && <p className="rounded-[18px] bg-white p-4 text-[#c03535] ring-1 ring-[#f5c2c2]">{error}</p>}
-          {result && !error && (
+        <section className="flex min-w-0 flex-col gap-4" aria-live="polite">
+          {error && <p className={`${card} p-4 text-[14px] text-[#c03535]`}>{error}</p>}
+          {result && v && !error && (
             <>
-              <div className={`rounded-[18px] p-4 ring-1 ${VERDICT[result.verdict].cls} ${loading ? 'opacity-70' : ''}`}>
-                <p className="flex items-center gap-2 text-sm font-semibold">
-                  <span aria-hidden className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs ring-1 ring-current">{VERDICT[result.verdict].icon}</span>
-                  {VERDICT[result.verdict].label}
+              <div className={`rounded-[18px] p-5 ring-1 transition-opacity ${loading ? 'opacity-70' : ''}`} style={{ background: v.bg, color: v.fg, ['--tw-ring-color' as string]: v.ring }}>
+                <p className="flex items-center gap-2.5 text-[14px] font-semibold">
+                  <span className="grid h-8 w-8 place-items-center rounded-full bg-white">
+                    <Icon name={v.icon} className="h-4 w-4" stroke={2.4} />
+                  </span>
+                  {v.label}
                 </p>
-                <p className="mt-1 text-base">{result.headline}</p>
-                <p className="mt-2 text-sm"><span className="font-semibold">What you could do: </span>{result.recommendation}</p>
+                <p className="mt-3 text-[17px] font-semibold leading-snug text-[#1a1215]">{result.headline}</p>
+                <p className="mt-2 text-[13px] text-[#4a4246]">
+                  <span className="font-semibold" style={{ color: v.fg }}>What you could do: </span>
+                  {result.recommendation}
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-                <div className="rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06]">
-                  <p className="text-xs text-[#8a8185]">Lowest balance</p>
-                  <p className={`mt-1 text-lg font-semibold ${result.result.lowestKobo < 0 ? 'text-[#c03535]' : ''}`}>{formatNaira(result.result.lowestKobo)}</p>
-                  <p className="text-xs text-[#8a8185]">around {fmtDay(result.result.lowestDate)} · was {formatNaira(result.baseline.lowestKobo)}</p>
-                </div>
-                <div className="rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06]">
-                  <p className="text-xs text-[#8a8185]">At month end</p>
-                  <p className={`mt-1 text-lg font-semibold ${result.result.monthEndKobo < 0 ? 'text-[#c03535]' : ''}`}>{formatNaira(result.result.monthEndKobo)}</p>
-                  <p className="text-xs text-[#8a8185]">was {formatNaira(result.baseline.monthEndKobo)}</p>
-                </div>
+                <Stat label="Lowest balance" value={result.result.lowestKobo} sub={`around ${fmtDay(result.result.lowestDate)} · was ${formatNaira(result.baseline.lowestKobo)}`} />
+                <Stat label="At month end" value={result.result.monthEndKobo} sub={`was ${formatNaira(result.baseline.monthEndKobo)}`} />
                 {result.monthlyProfit && (
-                  <div className="col-span-2 rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06] lg:col-span-1">
-                    <p className="text-xs text-[#8a8185]">Usual monthly profit</p>
-                    <p className="mt-1 text-lg font-semibold">{formatNaira(result.monthlyProfit.scenarioKobo)}</p>
-                    <p className="text-xs text-[#8a8185]">was {formatNaira(result.monthlyProfit.baselineKobo)}</p>
+                  <div className="col-span-2 lg:col-span-1">
+                    <Stat label="Usual monthly profit" value={result.monthlyProfit.scenarioKobo} sub={`was ${formatNaira(result.monthlyProfit.baselineKobo)}`} />
                   </div>
                 )}
               </div>
 
-              <div className="rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06]">
-                <h2 className="mb-1 font-semibold">Projected balance, next 60 days</h2>
+              <div className={`${card} p-5`}>
+                <h2 className="mb-1 text-[16px] font-semibold">Projected balance, next 60 days</h2>
                 <BalanceChart days={result.days} />
-                <details className="mt-3 text-sm">
+                <details className="mt-3 text-[13px]">
                   <summary className="cursor-pointer font-semibold text-brand">Show as a table</summary>
-                  <table className="mt-2 w-full text-left text-xs tabular-nums">
+                  <table className="mt-2 w-full text-left text-[12px] tabular-nums">
                     <thead className="text-[#8a8185]">
                       <tr><th className="py-1">Date</th><th>As things are</th><th>With this decision</th></tr>
                     </thead>
@@ -234,18 +256,32 @@ export default function Simulator() {
                 </details>
               </div>
 
-              <div className="rounded-[18px] bg-white p-4 text-sm ring-1 ring-black/[0.06]">
-                <h2 className="mb-1 font-semibold">How we worked this out</h2>
-                <ul className="list-disc pl-5 text-[#6a6165]">
-                  {result.assumptions.map((a) => <li key={a}>{a}</li>)}
-                  <li>This is an estimate, not a guarantee.</li>
+              <div className="rounded-[18px] bg-[#f4f2f3] p-5 text-[13px]">
+                <h2 className="mb-2 font-semibold">How we worked this out</h2>
+                <ul className="flex flex-col gap-1.5 text-[#6a6165]">
+                  {[...result.assumptions, 'This is an estimate, not a guarantee.'].map((a) => (
+                    <li key={a} className="flex gap-2">
+                      <Icon name="check" className="mt-0.5 h-3.5 w-3.5 text-brand" stroke={2.4} />
+                      {a}
+                    </li>
+                  ))}
                 </ul>
               </div>
             </>
           )}
-          {!result && !error && <p className="text-[#8a8185]">Working it out…</p>}
+          {!result && !error && <p className="text-[14px] text-[#8a8185]">Working it out…</p>}
         </section>
       </div>
     </AppShell>
+  )
+}
+
+function Stat({ label, value, sub }: { label: string; value: number; sub: string }) {
+  return (
+    <div className={`${card} h-full p-4`}>
+      <p className="text-[12px] text-[#7a7175]">{label}</p>
+      <p className={`mt-1 text-[19px] font-semibold ${value < 0 ? 'text-[#d64545]' : ''}`}>{formatNaira(value)}</p>
+      <p className="mt-0.5 text-[11px] text-[#8a8185]">{sub}</p>
+    </div>
   )
 }
