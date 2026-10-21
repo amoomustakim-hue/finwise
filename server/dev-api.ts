@@ -13,7 +13,8 @@ export function devApi(): Plugin {
 
       server.middlewares.use(async (req, res, next) => {
         const url = new URL(req.url ?? '/', 'http://localhost')
-        const match = url.pathname.match(/^\/api\/([\w-]+)$/)
+        // /api/me -> api/me.ts, /api/auth/login -> api/auth/login.ts
+        const match = url.pathname.match(/^\/api\/([\w-]+(?:\/[\w-]+)*)$/)
         if (!match) return next()
 
         try {
