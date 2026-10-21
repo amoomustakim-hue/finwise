@@ -41,26 +41,26 @@ export default function ReviewCard({ item, headline, onDone }: { item: ReviewIte
 
   const options = showAll ? item.options : item.options.slice(0, QUICK)
   return (
-    <article className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-brand/30">
+    <article className="rounded-[18px] bg-white p-4 shadow-sm ring-1 ring-brand/30">
       {headline && <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-brand">{headline}</p>}
-      <p className="text-sm text-slate-600">
-        <span className={`font-semibold ${item.direction === 'credit' ? 'text-emerald-700' : 'text-slate-900'}`}>
+      <p className="text-sm text-[#6a6165]">
+        <span className={`font-semibold ${item.direction === 'credit' ? 'text-[#1f8a5b]' : 'text-[#1a1215]'}`}>
           {formatNaira(item.amount_kobo)} {item.direction === 'credit' ? 'received' : 'debited'}
         </span>{' '}
         · {formatDate(item.occurred_at)}
       </p>
-      <p className="mt-1 truncate text-xs text-slate-500">{item.narration}</p>
+      <p className="mt-1 truncate text-xs text-[#8a8185]">{item.narration}</p>
       <p className="mt-3 font-semibold">{item.question}</p>
       {item.category_source === 'ai' && !picking && (
-        <p className="mt-1 text-xs text-slate-500">Suggested by AI from the description. Please check.</p>
+        <p className="mt-1 text-xs text-[#8a8185]">Suggested by AI from the description. Please check.</p>
       )}
 
       {!picking ? (
         <div className="mt-3 flex gap-2">
-          <button disabled={busy} onClick={() => answer(item.category!)} className="flex-1 rounded-xl bg-brand py-2 text-sm font-semibold text-white">
+          <button disabled={busy} onClick={() => answer(item.category!)} className="flex-1 rounded-[12px] bg-brand py-2 text-sm font-semibold text-white">
             Yes, {item.category}
           </button>
-          <button disabled={busy} onClick={() => setPicking(true)} className="flex-1 rounded-xl py-2 text-sm font-semibold ring-1 ring-slate-300">
+          <button disabled={busy} onClick={() => setPicking(true)} className="flex-1 rounded-[12px] py-2 text-sm font-semibold ring-1 ring-black/10">
             Change category
           </button>
         </div>
@@ -72,7 +72,7 @@ export default function ReviewCard({ item, headline, onDone }: { item: ReviewIte
                 key={c}
                 disabled={busy}
                 onClick={() => answer(c)}
-                className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium hover:bg-brand hover:text-white"
+                className="rounded-full bg-[#f4f2f3] px-3 py-1.5 text-sm font-medium hover:bg-brand hover:text-white"
               >
                 {c}
               </button>
@@ -83,13 +83,13 @@ export default function ReviewCard({ item, headline, onDone }: { item: ReviewIte
               </button>
             )}
           </div>
-          <label className="mt-3 flex items-center gap-2 text-xs text-slate-600">
+          <label className="mt-3 flex items-center gap-2 text-xs text-[#6a6165]">
             <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
             Use this for similar transactions in future
           </label>
         </>
       )}
-      {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="mt-2 text-sm text-[#c03535]">{error}</p>}
     </article>
   )
 }

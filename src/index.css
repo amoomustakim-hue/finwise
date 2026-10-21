@@ -1,12 +1,23 @@
 @import "tailwindcss";
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
+@import "@fontsource/poppins/700.css";
 
-/* Placeholder brand tokens — Rejoice's design system replaces these. */
+/* FinWise brand (Rejoice's design system): deep magenta into wine, with white, in Poppins. */
 @theme {
-  --color-brand: #0f766e;
-  --color-brand-dark: #115e59;
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --color-brand: #980042;
+  --color-brand-dark: #710131;
+  --color-wine: #4f0022;
+  --color-blush: #ffe4ee;
+  --font-sans: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  @apply bg-[#fafafa] text-[#1a1215] antialiased;
+}
+
+/* The brand gradient, as in the app header. */
+@utility bg-brand-grad {
+  background: linear-gradient(115deg, #4f0022 0%, #710131 32%, #980042 72%, #980142 100%);
 }

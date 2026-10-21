@@ -30,12 +30,12 @@ export default function Review() {
 
   return (
     <AppShell title="Transactions to review">
-      <p className="mb-4 max-w-3xl text-sm text-slate-600">
+      <p className="mb-4 max-w-3xl text-sm text-[#6a6165]">
         Answers update your budgets straight away. Unanswered transactions stay visible but aren't counted in a category budget.
       </p>
-      {toast && <p className="mb-3 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{toast}</p>}
-      {!items && <p className="text-slate-500">Loading…</p>}
-      {items && !items.length && <p className="rounded-2xl bg-white p-6 text-center ring-1 ring-slate-200">All caught up 🎉</p>}
+      {toast && <p className="mb-3 rounded-lg bg-[#e2f3ea] px-3 py-2 text-sm text-[#1f6b4f]">{toast}</p>}
+      {!items && <p className="text-[#8a8185]">Loading…</p>}
+      {items && !items.length && <p className="rounded-[18px] bg-white p-6 text-center ring-1 ring-black/[0.06]">All caught up 🎉</p>}
 
       {waiting.length > 0 && <h2 className="mb-2 mt-2 font-semibold">Awaiting your answer ({waiting.length})</h2>}
       <div className="grid gap-3 xl:grid-cols-2">
@@ -44,7 +44,7 @@ export default function Review() {
 
       {toConfirm.length > 0 && <h2 className="mb-2 mt-6 font-semibold">Please confirm ({toConfirm.length})</h2>}
       {bulk > 0 && (
-        <button onClick={confirmAll} className="mb-3 w-full rounded-xl bg-brand/10 lg:w-auto lg:px-6 py-2 text-sm font-semibold text-brand">
+        <button onClick={confirmAll} className="mb-3 w-full rounded-[12px] bg-brand/10 lg:w-auto lg:px-6 py-2 text-sm font-semibold text-brand">
           Confirm all {bulk} confident suggestions
         </button>
       )}

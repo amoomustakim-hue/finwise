@@ -50,26 +50,26 @@ export default function Budgets() {
   return (
     <AppShell title={mode === 'business' ? 'Operating budget' : 'Monthly budget'}>
       <div className="max-w-3xl">
-      <p className="mb-4 text-sm text-slate-600">
+      <p className="mb-4 text-sm text-[#6a6165]">
         {hasBudgets
           ? 'Change any amount. Leave a category empty for no budget.'
           : 'We filled these in from your average over the last 3 months. Adjust them to fit your plan.'}{' '}
         Budgets are plans inside FinWise; they don't move or block money in your bank.
       </p>
-      {!items && <p className="text-slate-500">Loading…</p>}
+      {!items && <p className="text-[#8a8185]">Loading…</p>}
       {items && (
-        <ul className="flex flex-col divide-y divide-slate-100 rounded-2xl bg-white ring-1 ring-slate-200">
+        <ul className="flex flex-col divide-y divide-black/[0.05] rounded-[18px] bg-white ring-1 ring-black/[0.06]">
           {items.map((i) => (
             <li key={i.category} className="flex items-center justify-between gap-3 px-4 py-3">
               <div className="min-w-0">
                 <p className="text-sm font-medium">{i.category}</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[#8a8185]">
                   {i.avgMonthlyKobo ? `Usually ${formatNaira(i.avgMonthlyKobo)} a month` : 'No recent spending'}
                   {i.spentKobo ? ` · ${formatNaira(i.spentKobo)} so far` : ''}
                 </p>
               </div>
-              <label className="flex items-center gap-1 rounded-xl border border-slate-300 px-3 py-2 focus-within:border-brand">
-                <span className="text-slate-500">₦</span>
+              <label className="flex items-center gap-1 rounded-[12px] border border-black/10 px-3 py-2 focus-within:border-brand">
+                <span className="text-[#8a8185]">₦</span>
                 <input
                   inputMode="numeric"
                   aria-label={`${i.category} budget`}
@@ -83,7 +83,7 @@ export default function Budgets() {
           ))}
         </ul>
       )}
-      <p className="mt-4 text-sm text-slate-600">Total planned: <span className="font-semibold">{formatNaira(total * 100)}</span></p>
+      <p className="mt-4 text-sm text-[#6a6165]">Total planned: <span className="font-semibold">{formatNaira(total * 100)}</span></p>
       <ErrorText>{error}</ErrorText>
       <Button className="mt-3 lg:w-auto lg:px-8" onClick={save} disabled={busy || !items}>{busy ? 'Saving…' : 'Save budgets'}</Button>
       </div>
