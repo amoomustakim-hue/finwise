@@ -33,6 +33,7 @@ export default function Import() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState<'import' | 'demo' | 'mono' | null>(null)
   const [mono, setMono] = useState<MonoStatus | null>(null)
+  const [monoStatus, setMonoStatus] = useState('')
 
   useEffect(() => {
     api<MonoStatus>('/mono/sync').then(setMono).catch(() => setMono(null))
@@ -49,7 +50,17 @@ export default function Import() {
         key: mono.publicKey,
         scope: 'auth',
         data: { customer: { name: user.name, email: user.email } },
-        onSuccess: async ({ code }: { code: string }) => {
+        onSuccess: async (result: unknown) => {
+          // README shape is { code }; accept a nested { data: { code } } too, just in case.
+          const r = result as { code?: string; data?: { code?: string } }
+          const code = r?.code ?? r?.data?.code
+          if (!code) {
+            console.warn('Mono onSuccess without a code', result)
+            setError("Mono finished but didn't send a link code. Please try again.")
+            setBusy(null)
+            return
+          }
+          setMonoStatus('Bank linked. Importing your transactions…')
           try {
             await api('/mono/exchange', { method: 'POST', body: { code, mode } })
             navigate('/mono/return') // waits for Mono to finish fetching the bank's transactions
@@ -58,7 +69,15 @@ export default function Import() {
             setBusy(null)
           }
         },
-        onClose: () => setBusy((b) => (b === 'mono' ? null : b)),
+        onEvent: (name: string) => {
+          // Shows how far the user got, e.g. INSTITUTION_SELECTED, AUTH_PAGE_LOADED, ERROR.
+          console.info('Mono event', name)
+          if (/error/i.test(name)) setMonoStatus('Mono reported a problem. Please try again.')
+        },
+        onClose: () => {
+          setBusy((b) => (b === 'mono' ? null : b))
+          setMonoStatus((s) => (s.startsWith('Bank linked') ? s : 'Mono closed before your bank was linked.'))
+        },
       })
       widget.setup()
       widget.open()
@@ -120,6 +139,7 @@ export default function Import() {
           <Button className="mt-3" onClick={connectMono} disabled={busy !== null}>
             {busy === 'mono' ? 'Opening Mono…' : 'Connect with Mono'}
           </Button>
+          {monoStatus && <p className="mt-2 text-sm text-slate-600">{monoStatus}</p>}
           {mono.accounts.length > 0 && (
             <p className="mt-2 text-xs text-slate-500">{mono.accounts.length} account(s) linked. They refresh each time you open FinWise.</p>
           )}
