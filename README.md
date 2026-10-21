@@ -1,3 +1,27 @@
+# FinWise
+
+## Landing page (`/`)
+
+The signed-out front door lives in `src/landing/` and is rendered by `src/pages/Landing.tsx`.
+It uses the FinWise brand (deep magenta `#980042` into wine `#4f0022`, with white) and
+Poppins, scoped to the landing page so the app screens are unchanged.
+
+| Section | What happens |
+| --- | --- |
+| Hero | Headline, demo and sign-up buttons, and a phone running the FinWise home screen that leans toward the pointer, with glass notes around it |
+| How FinWise thinks | Pinned: scrolling runs the calendar forward. Ada's salary is late, FinWise warns her, she adjusts, and the salary lands without her going below ₦0 |
+| Decision Simulator | Pick a decision, drag the slider, and the next 60 days, lowest balance and verdict update live |
+| What it does | Stacking cards: sorted transactions, early-warning budgets, insights with their evidence, and a phone that flips between Personal and Business |
+| Notifications | A lock screen with "Is this Food?" that you can answer |
+| Trust, story, FAQ, finale | Read-only bank access, Ada's story, questions, and the call to action |
+
+All numbers on the landing page are sample data for the demo persona Ada.
+
+**Photos:** add `public/landing/story.webp` (a wide portrait) and it becomes the background
+of the story section; until then that section uses a brand-coloured light field.
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
