@@ -88,7 +88,7 @@ export function Hero() {
           <div className="absolute left-1/2 top-0 -translate-x-1/2 text-left [--pw:min(300px,74vw)] sm:[--pw:320px]">
             <div aria-hidden="true" className="absolute -inset-x-20 top-10 h-[80%] rounded-full bg-[radial-gradient(closest-side,rgb(152_0_66/0.18),transparent)]" />
             <Phone>
-              <HomeScreen />
+              <HomeScreen insight />
             </Phone>
           </div>
           <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-white" />

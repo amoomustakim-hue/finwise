@@ -16,7 +16,7 @@ export function Phone({ children, className = '', style, dark = false }: { child
         <div className="h-full w-full rounded-[calc(var(--pw)*0.165-3px)] bg-[#070908] p-[calc(var(--pw)*0.026)]">
           <div className={`relative h-full w-full overflow-hidden rounded-[calc(var(--pw)*0.14)] [transform:translateZ(0)] ${dark ? 'bg-[#3a0019]' : 'bg-[#f7f4f5]'}`}>
             <span aria-hidden="true" className="absolute left-1/2 top-[2.4%] z-40 h-[3.6%] w-[31%] -translate-x-1/2 rounded-full bg-black" />
-            <StatusBar dark={dark} />
+            <StatusBar />
             {children}
             <span aria-hidden="true" className={`pointer-events-none absolute bottom-[1%] left-1/2 z-40 h-[0.6%] w-[34%] -translate-x-1/2 rounded-full ${dark ? 'bg-white/80' : 'bg-black/80'}`} />
           </div>
@@ -27,9 +27,10 @@ export function Phone({ children, className = '', style, dark = false }: { child
   )
 }
 
-function StatusBar({ dark }: { dark: boolean }) {
+/** White, like the app: every screen shown here starts with a dark magenta top. */
+function StatusBar() {
   return (
-    <div className={`pointer-events-none absolute inset-x-0 top-0 z-30 flex h-[7%] items-center justify-between px-[8%] pt-[1%] text-[calc(var(--pw)*0.042)] font-semibold ${dark ? 'text-white' : 'text-black'}`}>
+    <div className={`pointer-events-none absolute inset-x-0 top-0 z-30 flex h-[7%] items-center justify-between px-[8%] pt-[1%] text-[calc(var(--pw)*0.042)] font-semibold text-white`}>
       <span className="num">9:41</span>
       <span className="flex items-center gap-[4px]">
         <svg width="16" height="10" viewBox="0 0 17 11" aria-hidden="true">
@@ -46,7 +47,7 @@ function StatusBar({ dark }: { dark: boolean }) {
 }
 
 /** The FinWise home screen, in the app's own look: magenta header, balance, then white cards. */
-export function HomeScreen({ mode = 'personal' }: { mode?: 'personal' | 'business' }) {
+export function HomeScreen({ mode = 'personal', insight = false }: { mode?: 'personal' | 'business'; insight?: boolean }) {
   const { series } = project(null, 30)
   const min = Math.min(...series)
   const max = Math.max(...series)
@@ -83,13 +84,36 @@ export function HomeScreen({ mode = 'personal' }: { mode?: 'personal' | 'busines
             <svg viewBox="0 0 24 24" style={{ width: 'calc(var(--pw)*0.055)' }} fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
           </button>
         </p>
-        <div className="mx-auto mt-[6%] flex w-fit rounded-full bg-white/10 p-[3px] ring-1 ring-white/15" style={fs(0.03)}>
-          <span className={`rounded-full px-[10px] py-[4px] font-medium ${!biz ? 'bg-white text-[#980042]' : 'text-white/75'}`}>Personal</span>
-          <span className={`rounded-full px-[10px] py-[4px] font-medium ${biz ? 'bg-white text-[#980042]' : 'text-white/75'}`}>Business</span>
-        </div>
+        {!insight && (
+          <div className="mx-auto mt-[6%] flex w-fit rounded-full bg-white/10 p-[3px] ring-1 ring-white/15" style={fs(0.03)}>
+            <span className={`rounded-full px-[10px] py-[4px] font-medium ${!biz ? 'bg-white text-[#980042]' : 'text-white/75'}`}>Personal</span>
+            <span className={`rounded-full px-[10px] py-[4px] font-medium ${biz ? 'bg-white text-[#980042]' : 'text-white/75'}`}>Business</span>
+          </div>
+        )}
       </div>
 
       <div className="relative -mt-[5%] px-[5%]">
+        {insight && (
+          /* The app's insight card, as Rejoice designed it */
+          <div className="mb-[4%] rounded-[calc(var(--pw)*0.06)] bg-white p-[5.5%] shadow-[0_10px_24px_-14px_rgb(79_0_34/0.35)]">
+            <div className="flex items-center gap-[4%]">
+              <svg viewBox="0 0 24 24" className="shrink-0 text-[#980042]" style={{ width: 'calc(var(--pw)*0.075)' }} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" aria-hidden="true">
+                <path d="M10 3c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z" />
+                <path d="M18 13.5c.3 1.6 1 2.3 2.5 2.5-1.5.3-2.2 1-2.5 2.5-.3-1.5-1-2.2-2.5-2.5 1.5-.2 2.2-.9 2.5-2.5zM18.5 2.5c.2 1 .6 1.4 1.5 1.5-.9.2-1.3.6-1.5 1.5-.2-.9-.6-1.3-1.5-1.5.9-.1 1.3-.5 1.5-1.5z" />
+              </svg>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium leading-tight text-[#1a1215]" style={fs(0.046)}>Your AI insight</p>
+                <p className="text-[#6b6266]" style={fs(0.03)}>Personalised financial update</p>
+              </div>
+              <svg viewBox="0 0 24 24" className="shrink-0 text-[#4a4246]" style={{ width: 'calc(var(--pw)*0.05)' }} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="m9 6 6 6-6 6" />
+              </svg>
+            </div>
+            <p className="mt-[4%] leading-snug text-[#1a1215]" style={fs(0.036)}>
+              Your spending is 12% higher than last month, mainly due to food and transportation.
+            </p>
+          </div>
+        )}
         {/* The month, projected */}
         <div className="rounded-[calc(var(--pw)*0.06)] bg-white p-[5.5%] shadow-[0_10px_24px_-14px_rgb(79_0_34/0.35)]">
           <div className="flex items-baseline justify-between">
