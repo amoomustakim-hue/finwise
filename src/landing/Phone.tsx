@@ -3,7 +3,7 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { linePath, project } from './model'
 
-export function Phone({ children, className = '', style, dark = false }: { children: ReactNode; className?: string; style?: CSSProperties; dark?: boolean }) {
+export function Phone({ children, className = '', style, dark = false, darkStatus = false }: { children: ReactNode; className?: string; style?: CSSProperties; dark?: boolean; darkStatus?: boolean }) {
   const frame = 'linear-gradient(145deg, #e9ebe8 0%, #8e9591 16%, #dfe2df 32%, #6f7672 52%, #c9cdca 72%, #5c625f 100%)'
   const btn = (s: CSSProperties) => <span aria-hidden="true" className="absolute w-[4px] rounded-[2px]" style={{ background: frame, ...s }} />
   return (
@@ -16,7 +16,7 @@ export function Phone({ children, className = '', style, dark = false }: { child
         <div className="h-full w-full rounded-[calc(var(--pw)*0.165-3px)] bg-[#070908] p-[calc(var(--pw)*0.026)]">
           <div className={`relative h-full w-full overflow-hidden rounded-[calc(var(--pw)*0.14)] [transform:translateZ(0)] ${dark ? 'bg-[#3a0019]' : 'bg-[#f7f4f5]'}`}>
             <span aria-hidden="true" className="absolute left-1/2 top-[2.4%] z-40 h-[3.6%] w-[31%] -translate-x-1/2 rounded-full bg-black" />
-            <StatusBar />
+            <StatusBar dark={darkStatus} />
             {children}
             <span aria-hidden="true" className={`pointer-events-none absolute bottom-[1%] left-1/2 z-40 h-[0.6%] w-[34%] -translate-x-1/2 rounded-full ${dark ? 'bg-white/80' : 'bg-black/80'}`} />
           </div>
@@ -27,10 +27,10 @@ export function Phone({ children, className = '', style, dark = false }: { child
   )
 }
 
-/** White, like the app: every screen shown here starts with a dark magenta top. */
-function StatusBar() {
+/** White over the magenta tops, black over white screens. */
+function StatusBar({ dark }: { dark: boolean }) {
   return (
-    <div className={`pointer-events-none absolute inset-x-0 top-0 z-30 flex h-[7%] items-center justify-between px-[8%] pt-[1%] text-[calc(var(--pw)*0.042)] font-semibold text-white`}>
+    <div className={`pointer-events-none absolute inset-x-0 top-0 z-30 flex h-[7%] items-center justify-between px-[8%] pt-[1%] text-[calc(var(--pw)*0.042)] font-semibold transition-colors duration-500 ${dark ? 'text-[#1a1215]' : 'text-white'}`}>
       <span className="num">9:41</span>
       <span className="flex items-center gap-[4px]">
         <svg width="16" height="10" viewBox="0 0 17 11" aria-hidden="true">

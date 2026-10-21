@@ -57,5 +57,9 @@ See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rule
 panel on the left and the form on the right (a brand header on phones). The fields, button and
 cards there are separate from `src/components/ui.tsx`, so the app screens are unchanged.
 
-**Photo:** add `public/auth/woman.webp` (portrait, about 1200×1600) and it fills the brand panel,
-with the app's insight and salary cards floating over it. Until then the panel shows the phone.
+The brand panel runs a slideshow of the app, one screen every 3 seconds (pauses on hover):
+Overview, Analytics, AI Insight, Create Budget and Activity, rebuilt from the app designs in
+`src/landing/Screens.tsx`. Each slide shows the top of the phone, a card that pops out over it,
+a title, a line and dots. Edit the slides in `SLIDES` at the bottom of that file.
+
+**Photo (optional):** add `public/auth/woman.webp` and it replaces the slideshow.

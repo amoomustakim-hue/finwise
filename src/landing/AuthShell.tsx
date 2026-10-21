@@ -1,9 +1,10 @@
 // Sign in, sign up and onboarding share this frame: a brand panel with a photo on the left,
 // the form on the right. Separate from components/ui.tsx so the app screens stay as they are.
-import { useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react'
+import { useEffect, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import './landing.css'
-import { HomeScreen, Mark, Phone } from './Phone'
+import { Mark, Phone } from './Phone'
+import { FloatCard, SLIDES } from './Screens'
 
 const ICON = {
   mail: 'M4 6h16v12H4zM4 7l8 6 8-6',
@@ -19,51 +20,81 @@ export function FieldIcon({ name }: { name: keyof typeof ICON }) {
   )
 }
 
-/** The brand panel. Shows public/auth/woman.webp if it exists, otherwise a phone scene. */
+const EVERY_MS = 3000
+
+/**
+ * The app, introduced one screen at a time: the top of the phone, a card that pops out over it,
+ * and a title, line and dots underneath. Moves on every 3 seconds; pauses while hovered.
+ */
+function Slideshow() {
+  const [i, setI] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const n = SLIDES.length
+  useEffect(() => {
+    if (paused) return
+    const t = setTimeout(() => setI((x) => (x + 1) % n), EVERY_MS)
+    return () => clearTimeout(t)
+  }, [i, paused, n])
+  const slide = SLIDES[i]
+
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center px-10 pb-10 pt-20" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      <div className="relative [--pw:min(290px,22vw,33svh)]">
+        <div aria-hidden="true" className="absolute -inset-x-24 -top-10 bottom-0 rounded-full bg-[radial-gradient(closest-side,rgb(255_150_190/0.35),transparent)]" />
+        {/* Only the top of the phone shows, fading out like the reference */}
+        <div className="relative overflow-hidden [mask-image:linear-gradient(180deg,#000_70%,transparent)]" style={{ height: 'calc(var(--pw) * 2.167 * 0.66)' }}>
+          <Phone darkStatus={!!slide.lightTop}>
+            {SLIDES.map((sl, k) => {
+              const d = (k - i + n) % n
+              const x = d === 0 ? 0 : d === 1 ? 100 : d === n - 1 ? -100 : 100
+              const animate = d === 0 || d === n - 1
+              return (
+                <div key={k} className="absolute inset-0" style={{ transform: `translateX(${x}%)`, transition: animate ? 'transform 700ms cubic-bezier(0.22,1,0.36,1)' : 'none' }} aria-hidden={d !== 0}>
+                  {sl.screen}
+                </div>
+              )
+            })}
+          </Phone>
+        </div>
+        <div key={i} className="rise absolute -right-[52%] top-[40%] z-10">
+          <FloatCard rows={slide.rows} />
+        </div>
+      </div>
+
+      <div key={`t${i}`} className="rise mt-6 min-h-[112px] max-w-[420px] text-center text-white">
+        <p className="text-[clamp(24px,2.2vw,32px)] font-semibold leading-tight tracking-[-0.02em]">{slide.title}</p>
+        <p className="mt-2 text-[15px] leading-relaxed text-white/80">{slide.body}</p>
+      </div>
+      <div className="mt-2 flex items-center gap-2">
+        {SLIDES.map((sl, k) => (
+          <button key={sl.title} type="button" onClick={() => setI(k)} aria-label={`Show ${sl.title}`} className={`h-2 rounded-full transition-all duration-500 ${k === i ? 'w-6 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'}`} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** The brand panel. Shows public/auth/woman.webp if it exists, otherwise the app slideshow. */
 function BrandPanel() {
   const [photo, setPhoto] = useState(true)
   return (
     <aside className="relative hidden overflow-hidden rounded-[28px] lg:block" style={{ background: 'var(--brand-grad)' }}>
-      {photo ? (
-        <img src="/auth/woman.webp" alt="" onError={() => setPhoto(false)} className="absolute inset-0 h-full w-full object-cover" />
-      ) : (
-        <div className="absolute inset-0">
-          <div aria-hidden="true" className="absolute left-1/2 top-[44%] h-[70%] w-[90%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(255_150_190/0.35),transparent)]" />
-          <div className="absolute left-1/2 top-[11%] -translate-x-1/2 [--pw:min(240px,19vw,26svh)]">
-            <Phone>
-              <HomeScreen insight />
-            </Phone>
-          </div>
-        </div>
-      )}
-      <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(180deg,rgb(58_0_25/0.35)_0%,rgb(58_0_25/0)_30%,rgb(58_0_25/0.15)_55%,rgb(58_0_25/0.92)_100%)]" />
-
-      <Link to="/" className="absolute left-8 top-8 flex items-center gap-2.5 text-white">
+      <Link to="/" className="absolute left-8 top-8 z-20 flex items-center gap-2.5 text-white">
         <Mark className="h-8 w-8 rounded-[9px] ring-1 ring-white/50" />
         <span className="text-[18px] font-semibold tracking-tight">FinWise</span>
       </Link>
-
-      {/* Floating cards from the app (the insight card only over the photo; the phone already shows it) */}
-      {photo && (
-      <div className="absolute right-8 top-[22%] w-[230px] rounded-[18px] bg-white/95 p-4 text-[var(--ink)] shadow-[0_20px_40px_-20px_rgb(0_0_0/0.5)] backdrop-blur">
-        <p className="flex items-center gap-2 text-[14px] font-medium">
-          <svg viewBox="0 0 24 24" className="h-5 w-5 text-[var(--brand)]" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" aria-hidden="true">
-            <path d="M10 3c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6zM18 13.5c.3 1.6 1 2.3 2.5 2.5-1.5.3-2.2 1-2.5 2.5-.3-1.5-1-2.2-2.5-2.5 1.5-.2 2.2-.9 2.5-2.5z" />
-          </svg>
-          Your AI insight
-        </p>
-        <p className="mt-1.5 text-[12px] leading-snug text-[var(--ink-2)]">Your spending is 12% higher than last month, mainly due to food and transportation.</p>
-      </div>
+      {photo ? (
+        <>
+          <img src="/auth/woman.webp" alt="" onError={() => setPhoto(false)} className="absolute inset-0 h-full w-full object-cover" />
+          <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(180deg,rgb(58_0_25/0.35)_0%,rgb(58_0_25/0)_30%,rgb(58_0_25/0.15)_55%,rgb(58_0_25/0.92)_100%)]" />
+          <div className="absolute inset-x-8 bottom-8 text-white">
+            <p className="max-w-[440px] text-[clamp(28px,2.6vw,38px)] font-semibold leading-[1.1] tracking-[-0.03em]">See next month before you live it.</p>
+            <p className="mt-3 max-w-[400px] text-[15px] text-white/80">Understand where your money goes, see what’s coming, and act before it becomes a problem.</p>
+          </div>
+        </>
+      ) : (
+        <Slideshow />
       )}
-      <div className="absolute left-8 top-[48%] rounded-[16px] bg-white/95 px-4 py-3 shadow-[0_20px_40px_-20px_rgb(0_0_0/0.5)] backdrop-blur">
-        <p className="text-[13px] font-semibold text-[var(--good)]">+₦380,000</p>
-        <p className="text-[12px] text-[var(--muted)]">Salary landed</p>
-      </div>
-
-      <div className="absolute inset-x-8 bottom-8 text-white">
-        <p className="max-w-[440px] text-[clamp(28px,2.6vw,38px)] font-semibold leading-[1.1] tracking-[-0.03em]">See next month before you live it.</p>
-        <p className="mt-3 max-w-[400px] text-[15px] text-white/80">Understand where your money goes, see what’s coming, and act before it becomes a problem.</p>
-      </div>
     </aside>
   )
 }
