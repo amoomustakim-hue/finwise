@@ -10,7 +10,7 @@ import { useMode } from '../mode'
 
 const BANKS = ['Zenith Bank', 'GTBank', 'Access Bank', 'First Bank', 'UBA', 'OPay', 'Kuda', 'Moniepoint', 'PalmPay', 'Other']
 
-type MonoStatus = { enabled: boolean; testMode: boolean; publicKey: string | null; accounts: unknown[] }
+type MonoStatus = { enabled: boolean; testMode: boolean; publicKey: string | null; accounts: unknown[]; customer?: { name: string; email: string } }
 
 type ImportResult = {
   found: number
@@ -49,7 +49,7 @@ export default function Import() {
       const widget = new MonoConnect({
         key: mono.publicKey,
         scope: 'auth',
-        data: { customer: { name: user.name, email: user.email } },
+        data: { customer: mono.customer ?? { name: user.name, email: user.email } },
         onSuccess: async (result: unknown) => {
           // README shape is { code }; accept a nested { data: { code } } too, just in case.
           const r = result as { code?: string; data?: { code?: string } }

@@ -18,6 +18,9 @@ export const GET = handle(async (request) => {
     enabled: monoEnabled() && !!process.env.MONO_PUBLIC_KEY,
     testMode: monoTestMode(),
     publicKey: process.env.MONO_PUBLIC_KEY ?? null,
+    // Who Mono should register as the customer. Demo accounts have a non-routable '.invalid'
+    // email that Mono's validation rejects, so they use a reserved example.com placeholder.
+    customer: { name: user.name, email: user.is_demo ? `demo-${user.id.slice(0, 8)}@example.com` : user.email },
     accounts: await linked(user.id),
   })
 })
