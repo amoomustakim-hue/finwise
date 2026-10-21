@@ -10,6 +10,7 @@ const NAV = [
   { to: '/transactions', label: 'Activity', icon: '≡' },
   { to: '/review', label: 'Review', icon: '✓' },
   { to: '/budgets', label: 'Budgets', icon: '◔' },
+  { to: '/simulator', label: 'Simulator', icon: '⇄' },
   { to: '/import', label: 'Add data', icon: '+' },
 ]
 
@@ -80,7 +81,7 @@ export default function AppShell({ title, actions, children }: { title?: ReactNo
         </main>
 
         {/* Phone bottom navigation */}
-        <nav className="fixed inset-x-0 bottom-0 z-10 grid grid-cols-5 border-t border-slate-200 bg-white lg:hidden">
+        <nav className="fixed inset-x-0 bottom-0 z-10 grid grid-cols-6 border-t border-slate-200 bg-white lg:hidden">
           {NAV.map((n) => (
             <NavLink
               key={n.to}

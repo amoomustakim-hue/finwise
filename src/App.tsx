@@ -12,6 +12,7 @@ import Onboarding from './pages/Onboarding'
 import Review from './pages/Review'
 import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
+import Simulator from './pages/Simulator'
 import Transactions from './pages/Transactions'
 
 /** Sends people to the right place based on sign-in and onboarding state. */
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/budgets" element={<Guard need="ready"><Budgets /></Guard>} />
           <Route path="/category" element={<Guard need="ready"><Category /></Guard>} />
           <Route path="/transactions" element={<Guard need="ready"><Transactions /></Guard>} />
+          <Route path="/simulator" element={<Guard need="ready"><Simulator /></Guard>} />
           <Route path="/mono/return" element={<Guard need="ready"><MonoReturn /></Guard>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

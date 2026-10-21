@@ -80,7 +80,7 @@ export function personalDemo(opts: { userId: string; name: string; businessName?
     const dow = d.getUTCDay() // 0 Sun .. 6 Sat
     const thisMonth = isThisMonth(d, opts.today)
 
-    if (dom === 25) add(d, `SALARY ${monthName(d)} - BRIGHTWAY LOGISTICS LTD`, 285000, 'credit')
+    if (dom === 25) add(d, `SALARY ${monthName(d)} - BRIGHTWAY LOGISTICS LTD`, opts.businessName ? 380000 : 460000, 'credit') // no owner's pay without a business
     if (dom === 26) add(d, `TRANSFER TO OWN ACCOUNT - ${first} SAVINGS`, 40000)
     if (dom === 27) add(d, 'TRANSFER TO MUMMY ADAEZE', 25000)
     if (dom === 3) add(d, 'DSTV SUBSCRIPTION COMPACT', 19000)

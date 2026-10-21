@@ -6,9 +6,11 @@ import * as dashboard from '../server/routes/dashboard.js'
 import * as demo from '../server/routes/demo.js'
 import * as health from '../server/routes/health.js'
 import * as imports from '../server/routes/imports.js'
+import * as insights from '../server/routes/insights.js'
 import * as me from '../server/routes/me.js'
 import * as review from '../server/routes/review.js'
 import * as simulate from '../server/routes/simulate.js'
+import * as simulator from '../server/routes/simulator.js'
 import * as transactions from '../server/routes/transactions.js'
 import * as login from '../server/routes/auth/login.js'
 import * as logout from '../server/routes/auth/logout.js'
@@ -26,12 +28,14 @@ const ROUTES: Record<string, RouteModule> = {
   me,
   dashboard,
   budgets,
+  insights,
   imports,
   transactions,
   demo,
   categorise,
   review,
   simulate,
+  simulator,
   'auth/signup': signup,
   'auth/login': login,
   'auth/logout': logout,

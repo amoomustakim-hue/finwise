@@ -4,6 +4,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { api, type Mode } from '../lib/api'
+import { ordinal } from '../../shared/text'
 import { formatDate, formatNaira } from '../lib/format'
 
 type Status = 'on_track' | 'nearly_used' | 'likely_over' | 'over' | 'no_budget'
@@ -67,12 +68,14 @@ export default function Dashboard({
   mode,
   version,
   beforeMain,
+  insights,
   afterMain,
   onData,
 }: {
   mode: Mode
   version: number
   beforeMain?: ReactNode // e.g. the "new transaction" card
+  insights?: ReactNode // the insights panel
   afterMain?: ReactNode // e.g. the transaction list
   onData?: (d: DashboardData) => void
 }) {
@@ -168,11 +171,13 @@ export default function Dashboard({
     </section>
   )
 
-  const noticed = data.indicators.length > 0 && (
+  // Trend, budget and supplier signals are covered (with an action) by the insights panel.
+  const signals = data.indicators.filter((i) => !/^(trend-|budget-|supplier-costs$)/.test(i.id))
+  const noticed = signals.length > 0 && (
     <section className="flex flex-col gap-2">
       <h2 className="font-semibold">What we noticed</h2>
       <div className="grid gap-2 xl:grid-cols-2">
-        {data.indicators.map((i) => (
+        {signals.map((i) => (
           <div key={i.id} className={`flex gap-3 rounded-2xl p-3 ring-1 ${TONE[i.tone].ring}`}>
             <span aria-hidden className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold ring-1 ring-current ${TONE[i.tone].text}`}>
               {TONE[i.tone].icon}
@@ -275,7 +280,7 @@ export default function Dashboard({
             <span className="min-w-0">
               <span className="block truncate">{r.name}</span>
               <span className="block text-xs text-slate-500">
-                {r.status === 'late' ? `Usually around the ${r.typicalDay}th, not seen yet` : r.dueInDays === 0 ? 'Usually today' : `Around the ${r.typicalDay}th · in ${r.dueInDays} day(s)`}
+                {r.status === 'late' ? `Usually around the ${ordinal(r.typicalDay)}, not seen yet` : r.dueInDays === 0 ? 'Usually today' : `Around the ${ordinal(r.typicalDay)} · in ${r.dueInDays} day(s)`}
               </span>
             </span>
             <span className={`shrink-0 font-medium ${r.direction === 'credit' ? 'text-emerald-700' : ''}`}>
@@ -297,6 +302,7 @@ export default function Dashboard({
       <div className="grid items-start gap-4 lg:grid-cols-12 lg:gap-6">
         <div className="flex min-w-0 flex-col gap-4 lg:col-span-8 lg:gap-6">
           {beforeMain}
+          {insights}
           {noticed}
           {budgets}
           {afterMain}

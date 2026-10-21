@@ -1,6 +1,7 @@
 // The financial engine: deterministic maths only. AI never calculates numbers; it may only
 // explain what this file returns. Every figure here can be traced to the rows it came from.
 import { kindOf, type Mode } from '../../shared/categories.js'
+import { ordinal } from '../../shared/text.js'
 
 export type Tx = {
   id: string
@@ -336,7 +337,7 @@ export function indicators(o: ReturnType<typeof overview>, lines: CategoryLine[]
       id: 'late-bills',
       tone: 'neutral',
       title: `${late.length} regular payment${late.length > 1 ? 's' : ''} not seen yet this month`,
-      evidence: late.map((r) => `${r.name} (usually ~${naira(r.typicalAmountKobo)} around the ${r.typicalDay}th)`).join(', '),
+      evidence: late.map((r) => `${r.name} (usually ~${naira(r.typicalAmountKobo)} around the ${ordinal(r.typicalDay)})`).join(', '),
     })
   }
   if (o.business) {

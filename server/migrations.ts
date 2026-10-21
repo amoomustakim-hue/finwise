@@ -124,4 +124,18 @@ export const migrations: { id: string; statements: string[] }[] = [
       `alter table accounts add column last_synced_at timestamptz`,
     ],
   },
+  {
+    id: '003_insight_wording_cache',
+    statements: [
+      // AI-written wording for a set of insights, keyed by a hash of the underlying numbers,
+      // so the same facts are only sent to the AI once (free tier is 8K tokens/minute).
+      `create table insight_wording (
+        user_id uuid not null references users(id) on delete cascade,
+        facts_hash text not null,
+        wording jsonb not null,
+        created_at timestamptz not null default now(),
+        primary key (user_id, facts_hash)
+      )`,
+    ],
+  },
 ]
