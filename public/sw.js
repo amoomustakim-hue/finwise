@@ -1,5 +1,5 @@
 // FinWise service worker: push notifications + offline app shell.
-// Offline goal: once the app has been opened online, the Scan-to-pay screen (/pay) works with no data.
+// Offline: the app shell loads without data (pages then show "you're offline" for live data).
 // API calls are never cached (financial data must be fresh); only the app's own files are.
 
 const CACHE = 'finwise-shell-v1'

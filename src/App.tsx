@@ -12,8 +12,6 @@ import Onboarding from './pages/Onboarding'
 import Review from './pages/Review'
 import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
-import MyQr from './pages/MyQr'
-import Pay from './pages/Pay'
 import Simulator from './pages/Simulator'
 import Transactions from './pages/Transactions'
 
@@ -45,9 +43,6 @@ export default function App() {
           <Route path="/category" element={<Guard need="ready"><Category /></Guard>} />
           <Route path="/transactions" element={<Guard need="ready"><Transactions /></Guard>} />
           <Route path="/simulator" element={<Guard need="ready"><Simulator /></Guard>} />
-          <Route path="/my-qr" element={<Guard need="ready"><MyQr /></Guard>} />
-          {/* Public and offline-capable: no sign-in needed to pay someone */}
-          <Route path="/pay" element={<Pay />} />
           <Route path="/mono/return" element={<Guard need="ready"><MonoReturn /></Guard>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -9,7 +9,6 @@ import * as imports from '../server/routes/imports.js'
 import * as insights from '../server/routes/insights.js'
 import * as jobsSync from '../server/routes/jobs-sync.js'
 import * as me from '../server/routes/me.js'
-import * as pay from '../server/routes/pay.js'
 import * as push from '../server/routes/push.js'
 import * as pushTest from '../server/routes/push-test.js'
 import * as review from '../server/routes/review.js'
@@ -36,7 +35,6 @@ const ROUTES: Record<string, RouteModule> = {
   push,
   'push/test': pushTest,
   'jobs/sync': jobsSync,
-  pay,
   imports,
   transactions,
   demo,

@@ -164,4 +164,9 @@ export const migrations: { id: string; statements: string[] }[] = [
       )`,
     ],
   },
+  {
+    id: '005_drop_pay_profiles',
+    // Offline QR payments were removed from the product (2026-10-21).
+    statements: [`drop table if exists pay_profiles`],
+  },
 ]

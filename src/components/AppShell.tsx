@@ -9,11 +9,9 @@ import { useMode } from '../mode'
 const NAV = [
   { to: '/home', label: 'Home', icon: '⌂', phone: true },
   { to: '/transactions', label: 'Activity', icon: '≡', phone: true },
-  { to: '/review', label: 'Review', icon: '✓', phone: false },
+  { to: '/review', label: 'Review', icon: '✓', phone: true },
   { to: '/budgets', label: 'Budgets', icon: '◔', phone: false },
   { to: '/simulator', label: 'Simulator', icon: '⇄', phone: true },
-  { to: '/my-qr', label: 'My QR', icon: '▣', phone: false },
-  { to: '/pay', label: 'Pay', icon: '⌁', phone: true },
   { to: '/import', label: 'Add data', icon: '+', phone: false },
 ]
 
