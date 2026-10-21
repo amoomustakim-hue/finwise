@@ -30,6 +30,6 @@ export const PATCH = handle(async (request) => {
       business_name = ${body.usesBusiness ? body.businessName! : null},
       onboarded = true
     where id = ${user.id}
-    returning id, name, email, uses_personal, uses_business, business_name, onboarded`) as User[]
+    returning id, name, email, uses_personal, uses_business, business_name, onboarded, is_demo, expires_at`) as User[]
   return Response.json({ user: rows[0] })
 })

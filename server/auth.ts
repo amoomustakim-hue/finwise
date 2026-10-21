@@ -22,6 +22,8 @@ export type User = {
   uses_business: boolean
   business_name: string | null
   onboarded: boolean
+  is_demo: boolean
+  expires_at: string | null
 }
 
 export const hashPassword = (password: string) => bcrypt.hash(password, BCRYPT_ROUNDS)
@@ -35,12 +37,12 @@ export const dummyCheck = (password: string) => bcrypt.compare(password, DUMMY_H
 const sha256 = (value: string) => createHash('sha256').update(value).digest('hex')
 
 /** Create a session row and return the Set-Cookie header value. */
-export async function startSession(userId: string, request: Request): Promise<string> {
+export async function startSession(userId: string, request: Request, days = SESSION_DAYS): Promise<string> {
   const token = randomBytes(32).toString('base64url')
   await db()`
     insert into sessions (user_id, token_hash, expires_at)
-    values (${userId}, ${sha256(token)}, now() + make_interval(days => ${SESSION_DAYS}))`
-  return sessionCookie(token, SESSION_DAYS * 86400, request)
+    values (${userId}, ${sha256(token)}, now() + make_interval(days => ${days}))`
+  return sessionCookie(token, days * 86400, request)
 }
 
 /** Delete the current session (if any) and return a cookie that clears it. */
@@ -55,9 +57,10 @@ export async function currentUser(request: Request): Promise<User | null> {
   const token = readCookie(request, COOKIE)
   if (!token) return null
   const rows = (await db()`
-    select u.id, u.name, u.email, u.uses_personal, u.uses_business, u.business_name, u.onboarded
+    select u.id, u.name, u.email, u.uses_personal, u.uses_business, u.business_name, u.onboarded, u.is_demo, u.expires_at
     from sessions s join users u on u.id = s.user_id
-    where s.token_hash = ${sha256(token)} and s.expires_at > now()`) as User[]
+    where s.token_hash = ${sha256(token)} and s.expires_at > now()
+      and (u.expires_at is null or u.expires_at > now())`) as User[]
   return rows[0] ?? null
 }
 

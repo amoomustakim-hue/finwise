@@ -8,6 +8,8 @@ export type User = {
   uses_business: boolean
   business_name: string | null
   onboarded: boolean
+  is_demo: boolean
+  expires_at: string | null
 }
 
 export type Mode = 'personal' | 'business'

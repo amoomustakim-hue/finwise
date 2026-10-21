@@ -14,6 +14,7 @@ import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
 import Simulator from './pages/Simulator'
 import Transactions from './pages/Transactions'
+import Try from './pages/Try'
 
 /** Sends people to the right place based on sign-in and onboarding state. */
 function Guard({ need, children }: { need: 'guest' | 'onboarding' | 'ready'; children: ReactNode }) {
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="/category" element={<Guard need="ready"><Category /></Guard>} />
           <Route path="/transactions" element={<Guard need="ready"><Transactions /></Guard>} />
           <Route path="/simulator" element={<Guard need="ready"><Simulator /></Guard>} />
+          <Route path="/try" element={<Try />} />
           <Route path="/mono/return" element={<Guard need="ready"><MonoReturn /></Guard>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

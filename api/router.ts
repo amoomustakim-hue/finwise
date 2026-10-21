@@ -4,6 +4,7 @@ import * as budgets from '../server/routes/budgets.js'
 import * as categorise from '../server/routes/categorise.js'
 import * as dashboard from '../server/routes/dashboard.js'
 import * as demo from '../server/routes/demo.js'
+import * as demoStart from '../server/routes/demo-start.js'
 import * as health from '../server/routes/health.js'
 import * as imports from '../server/routes/imports.js'
 import * as insights from '../server/routes/insights.js'
@@ -38,6 +39,7 @@ const ROUTES: Record<string, RouteModule> = {
   imports,
   transactions,
   demo,
+  'demo/start': demoStart,
   categorise,
   review,
   simulate,

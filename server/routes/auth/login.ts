@@ -23,7 +23,7 @@ export const POST = handle(async (request) => {
   for (const key of keys) await assertNotRateLimited(key)
 
   const rows = (await db()`
-    select id, name, email, uses_personal, uses_business, business_name, onboarded, password_hash
+    select id, name, email, uses_personal, uses_business, business_name, onboarded, is_demo, expires_at, password_hash
     from users where email = ${email}`) as (User & { password_hash: string })[]
   const found = rows[0]
 

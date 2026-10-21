@@ -72,6 +72,15 @@ export default function AppShell({ title, actions, children }: { title?: ReactNo
           <button onClick={signOut} className="text-xs text-slate-500 underline">Sign out</button>
         </header>
 
+        {user?.is_demo && (
+          <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-xs text-amber-900 lg:text-sm">
+            You're exploring a <span className="font-semibold">demo account</span> with sample data. It's deleted automatically after 24 hours.{' '}
+            <button onClick={async () => { await signOut(); window.location.href = '/signup' }} className="font-semibold underline">
+              Create your own account
+            </button>
+          </div>
+        )}
+
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-24 pt-5 lg:px-8 lg:pb-10 lg:pt-8">
           {(title || actions) && (
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">

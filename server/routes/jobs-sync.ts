@@ -6,6 +6,7 @@ import { timingSafeEqual } from 'node:crypto'
 import { db } from '../db.js'
 import { handle, HttpError } from '../http.js'
 import { monoEnabled, syncMonoAccount } from '../mono.js'
+import { deleteExpiredDemos } from './demo-start.js'
 
 const TIME_BUDGET_MS = 50_000 // stay inside the function time limit; the next run continues
 
@@ -20,7 +21,8 @@ function authorised(request: Request): boolean {
 
 async function run(request: Request): Promise<Response> {
   if (!authorised(request)) throw new HttpError(401, 'Unauthorised')
-  if (!monoEnabled()) return Response.json({ ok: true, skipped: 'mono not configured' })
+  const demosDeleted = await deleteExpiredDemos()
+  if (!monoEnabled()) return Response.json({ ok: true, demosDeleted, skipped: 'mono not configured' })
 
   const started = Date.now()
   // Least recently synced first, so every account gets a turn across runs.
@@ -39,7 +41,7 @@ async function run(request: Request): Promise<Response> {
     }
     checked++
   }
-  return Response.json({ ok: true, checked, of: accounts.length, newTransactions })
+  return Response.json({ ok: true, demosDeleted, checked, of: accounts.length, newTransactions })
 }
 
 export const GET = handle(run)

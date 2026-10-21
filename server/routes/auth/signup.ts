@@ -18,7 +18,7 @@ export const POST = handle(async (request) => {
     insert into users (name, email, password_hash)
     values (${name}, ${email}, ${passwordHash})
     on conflict (email) do nothing
-    returning id, name, email, uses_personal, uses_business, business_name, onboarded`) as User[]
+    returning id, name, email, uses_personal, uses_business, business_name, onboarded, is_demo, expires_at`) as User[]
   if (!rows[0]) throw new HttpError(409, 'An account with this email already exists. Sign in instead.')
 
   const cookie = await startSession(rows[0].id, request)

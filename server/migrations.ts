@@ -169,4 +169,13 @@ export const migrations: { id: string; statements: string[] }[] = [
     // Offline QR payments were removed from the product (2026-10-21).
     statements: [`drop table if exists pay_profiles`],
   },
+  {
+    id: '006_demo_accounts',
+    statements: [
+      // "Try it yourself" accounts for judges/visitors: sample data only, deleted after expiry.
+      `alter table users add column is_demo boolean not null default false`,
+      `alter table users add column expires_at timestamptz`,
+      `create index users_demo_expiry_idx on users(expires_at) where is_demo`,
+    ],
+  },
 ]

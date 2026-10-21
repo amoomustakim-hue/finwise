@@ -13,7 +13,10 @@ export default function Landing() {
         <Link to="/signup" className="rounded-xl bg-brand px-4 py-3 text-center font-semibold text-white">
           Get started
         </Link>
-        <Link to="/signin" className="rounded-xl bg-white px-4 py-3 text-center font-semibold ring-1 ring-slate-300">
+        <Link to="/try" className="rounded-xl bg-white px-4 py-3 text-center font-semibold text-brand ring-1 ring-brand/40">
+          Try the demo (no sign-up)
+        </Link>
+        <Link to="/signin" className="py-2 text-center text-sm font-semibold text-slate-600">
           I already have an account
         </Link>
       </div>
