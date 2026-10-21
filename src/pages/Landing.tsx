@@ -1,25 +1,42 @@
-import { Link } from 'react-router'
-import { Screen } from '../components/ui'
+import { useEffect } from 'react'
+import Lenis from 'lenis'
+import '../landing/landing.css'
+import { Hero, Nav } from '../landing/Hero'
+import { Faq, FeatureStack, Finale, Marquee, Notifications, StoryPhoto, Trust } from '../landing/Sections'
+import { Calendar, Simulator } from '../landing/Story'
 
 export default function Landing() {
+  // Smooth, weighted scrolling for the landing page only.
+  useEffect(() => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const lenis = new Lenis({ lerp: 0.09 })
+    let f = 0
+    const raf = (t: number) => {
+      lenis.raf(t)
+      f = requestAnimationFrame(raf)
+    }
+    f = requestAnimationFrame(raf)
+    return () => {
+      cancelAnimationFrame(f)
+      lenis.destroy()
+    }
+  }, [])
+
   return (
-    <Screen>
-      <div className="flex flex-1 flex-col justify-center gap-4">
-        <h1 className="text-4xl font-bold text-brand">FinWise</h1>
-        <p className="text-xl text-slate-700">Turn your financial data into smarter decisions.</p>
-        <p className="text-slate-500">Understand your money, predict what's coming, and act before it's a problem.</p>
-      </div>
-      <div className="flex flex-col gap-3">
-        <Link to="/signup" className="rounded-xl bg-brand px-4 py-3 text-center font-semibold text-white">
-          Get started
-        </Link>
-        <Link to="/try" className="rounded-xl bg-white px-4 py-3 text-center font-semibold text-brand ring-1 ring-brand/40">
-          Try the demo (no sign-up)
-        </Link>
-        <Link to="/signin" className="py-2 text-center text-sm font-semibold text-slate-600">
-          I already have an account
-        </Link>
-      </div>
-    </Screen>
+    <div className="lp">
+      <Nav />
+      <main>
+        <Hero />
+        <Marquee />
+        <Calendar />
+        <Simulator />
+        <FeatureStack />
+        <Notifications />
+        <Trust />
+        <StoryPhoto />
+        <Faq />
+        <Finale />
+      </main>
+    </div>
   )
 }
