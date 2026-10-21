@@ -1,5 +1,6 @@
 // Home shell with the Personal/Business switch. Dashboards plug in here next.
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { useAuth } from '../auth'
 import TransactionList from '../components/TransactionList'
 import { Screen } from '../components/ui'
@@ -58,9 +59,14 @@ export default function Home() {
         </div>
       )}
 
-      <h1 className="mb-4 text-lg font-semibold">
-        {mode === 'business' ? user?.business_name : `Hi ${user?.name.split(' ')[0]}`}
-      </h1>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h1 className="text-lg font-semibold">
+          {mode === 'business' ? user?.business_name : `Hi ${user?.name.split(' ')[0]}`}
+        </h1>
+        <Link to={`/import?mode=${mode}`} className="shrink-0 rounded-xl bg-brand px-3 py-2 text-sm font-semibold text-white">
+          + Add transactions
+        </Link>
+      </div>
       <TransactionList mode={mode} />
     </Screen>
   )

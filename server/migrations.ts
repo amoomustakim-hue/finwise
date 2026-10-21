@@ -101,4 +101,27 @@ export const migrations: { id: string; statements: string[] }[] = [
       )`,
     ],
   },
+  {
+    id: '002_categorise_and_mono',
+    statements: [
+      // Where a category came from: keyword rule, the user's own rule, AI, or the user directly.
+      `alter table transactions add column category_source text
+        check (category_source in ('rule', 'user_rule', 'ai', 'user'))`,
+      // Normalised merchant/recipient key, used to remember "always X" corrections.
+      `alter table transactions add column match_key text`,
+      // AI is only tried once per transaction (free tier is tight).
+      `alter table transactions add column ai_tried boolean not null default false`,
+      `create index transactions_match_key_idx on transactions(user_id, mode, match_key)`,
+
+      // Pending Mono Connect links: ties Mono's meta.ref back to a user and mode.
+      `create table mono_links (
+        ref text primary key,
+        user_id uuid not null references users(id) on delete cascade,
+        mode text not null check (mode in ('personal', 'business')),
+        created_at timestamptz not null default now()
+      )`,
+      `alter table accounts add column mono_data_status text`,
+      `alter table accounts add column last_synced_at timestamptz`,
+    ],
+  },
 ]
