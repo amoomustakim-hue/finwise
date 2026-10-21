@@ -1,4 +1,6 @@
 {
+  // Vercel's function builder reads this root file, so give it Node types.
+  "compilerOptions": { "types": ["node"] },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
