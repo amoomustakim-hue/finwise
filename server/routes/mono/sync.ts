@@ -13,7 +13,13 @@ async function linked(userId: string) {
 
 export const GET = handle(async (request) => {
   const user = await requireUser(request)
-  return Response.json({ enabled: monoEnabled(), testMode: monoTestMode(), accounts: await linked(user.id) })
+  // The public key is meant for browsers (it only opens Mono's widget); the secret key never leaves the server.
+  return Response.json({
+    enabled: monoEnabled() && !!process.env.MONO_PUBLIC_KEY,
+    testMode: monoTestMode(),
+    publicKey: process.env.MONO_PUBLIC_KEY ?? null,
+    accounts: await linked(user.id),
+  })
 })
 
 export const POST = handle(async (request) => {

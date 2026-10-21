@@ -13,6 +13,8 @@ export function matchKey(narration: string): string {
   if (transfer) return `${transfer[1]}:${transfer[2].trim()}`
   return s
     .replace(/^(POS PURCHASE|POS|WEB PURCHASE|PURCHASE|PAYMENT TO|PAYMENT|NIP|USSD)\s+/, '')
+    // Month names/years make the same monthly payment look different ("SALARY OCT 2026").
+    .replace(/\b(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEPT?|OCT|NOV|DEC)[A-Z]*\b|\b20\d\d\b/g, ' ')
     .replace(/\b(REF|TXN|ID)[:#]?\s*\w+/g, '')
     .replace(/[\d#*/]+/g, ' ')
     .replace(/\s+/g, ' ')

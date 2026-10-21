@@ -8,6 +8,8 @@ import { formatDate } from '../lib/format'
 
 const BANKS = ['Zenith Bank', 'GTBank', 'Access Bank', 'First Bank', 'UBA', 'OPay', 'Kuda', 'Moniepoint', 'PalmPay', 'Other']
 
+type MonoStatus = { enabled: boolean; testMode: boolean; publicKey: string | null; accounts: unknown[] }
+
 type ImportResult = {
   found: number
   imported: number
@@ -28,20 +30,38 @@ export default function Import() {
   const [result, setResult] = useState<ImportResult | null>(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState<'import' | 'demo' | 'mono' | null>(null)
-  const [mono, setMono] = useState<{ enabled: boolean; testMode: boolean; accounts: unknown[] } | null>(null)
+  const [mono, setMono] = useState<MonoStatus | null>(null)
 
   useEffect(() => {
-    api<{ enabled: boolean; testMode: boolean; accounts: unknown[] }>('/mono/sync').then(setMono).catch(() => setMono(null))
+    api<MonoStatus>('/mono/sync').then(setMono).catch(() => setMono(null))
   }, [])
 
+  /** Open Mono's Connect widget in-page; on success, our server exchanges the code for the account. */
   async function connectMono() {
+    if (!mono?.publicKey || !user) return
     setBusy('mono')
     setError('')
     try {
-      const { url } = await api<{ url: string }>('/mono/connect', { method: 'POST', body: { mode } })
-      window.location.href = url // Mono's hosted linking page; it returns to /mono/return
+      const { default: MonoConnect } = await import('@mono.co/connect.js') // loaded only when needed
+      const widget = new MonoConnect({
+        key: mono.publicKey,
+        scope: 'auth',
+        data: { customer: { name: user.name, email: user.email } },
+        onSuccess: async ({ code }: { code: string }) => {
+          try {
+            await api('/mono/exchange', { method: 'POST', body: { code, mode } })
+            navigate('/mono/return') // waits for Mono to finish fetching the bank's transactions
+          } catch (err) {
+            setError((err as Error).message)
+            setBusy(null)
+          }
+        },
+        onClose: () => setBusy((b) => (b === 'mono' ? null : b)),
+      })
+      widget.setup()
+      widget.open()
     } catch (err) {
-      setError((err as Error).message)
+      setError((err as Error).message || 'Could not open Mono')
       setBusy(null)
     }
   }

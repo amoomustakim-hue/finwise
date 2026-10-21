@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { AuthProvider, useAuth } from './auth'
+import Budgets from './pages/Budgets'
+import Category from './pages/Category'
 import Home from './pages/Home'
 import Import from './pages/Import'
 import Landing from './pages/Landing'
@@ -33,6 +35,8 @@ export default function App() {
           <Route path="/home" element={<Guard need="ready"><Home /></Guard>} />
           <Route path="/import" element={<Guard need="ready"><Import /></Guard>} />
           <Route path="/review" element={<Guard need="ready"><Review /></Guard>} />
+          <Route path="/budgets" element={<Guard need="ready"><Budgets /></Guard>} />
+          <Route path="/category" element={<Guard need="ready"><Category /></Guard>} />
           <Route path="/mono/return" element={<Guard need="ready"><MonoReturn /></Guard>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

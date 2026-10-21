@@ -124,9 +124,9 @@ export function businessDemo(opts: { userId: string; name: string; businessName:
     if (dow !== 0) add(d, 'POS SETTLEMENT - TERMINAL 2033', round(r.int(8000, 30000) * (dow === 6 ? 1.8 : 1), 50), 'credit')
 
     // Restock Mon/Wed/Fri (~₦1.2M a month, so profit is modest and believable);
-    // supplier prices ~10% higher this month (the planted "costs squeezing profit" insight).
+    // supplier prices ~12% higher this month (the planted "costs squeezing profit" insight).
     if (dow === 1 || dow === 3 || dow === 5) {
-      add(d, `TRANSFER TO ${r.pick(['ALHAJI MUSA RICE DEPOT', 'ONITSHA FOODSTUFF WHOLESALE'] as const)}`, round(r.int(80000, 110000) * (thisMonth ? 1.1 : 1), 500))
+      add(d, `TRANSFER TO ${r.pick(['ALHAJI MUSA RICE DEPOT', 'ONITSHA FOODSTUFF WHOLESALE'] as const)}`, round(r.int(80000, 110000) * (thisMonth ? 1.12 : 1), 500))
     }
     if (dom === 1) add(d, 'TRANSFER TO CHIEF ADEOLA - SHOP RENT', 60000)
     if (dom === 28) {

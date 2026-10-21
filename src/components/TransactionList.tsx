@@ -33,22 +33,29 @@ export default function TransactionList({
   mode,
   version = 0,
   onLoaded,
+  category,
+  month,
 }: {
   mode: Mode
   version?: number
   onLoaded?: (hasDemo: boolean) => void
+  category?: string
+  month?: string
 }) {
   const [txs, setTxs] = useState<Tx[] | null>(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    api<{ transactions: Tx[] }>(`/transactions?mode=${mode}`)
+    const q = new URLSearchParams({ mode })
+    if (category) q.set('category', category)
+    if (month) q.set('month', month)
+    api<{ transactions: Tx[] }>(`/transactions?${q}`)
       .then((r) => {
         setTxs(r.transactions)
         onLoaded?.(r.transactions.some((t) => t.source === 'demo'))
       })
       .catch((e) => setError(e.message))
-  }, [mode, version, onLoaded])
+  }, [mode, version, onLoaded, category, month])
 
   if (error) return <p className="text-red-700">{error}</p>
   if (!txs) return <p className="text-slate-500">Loading transactions…</p>

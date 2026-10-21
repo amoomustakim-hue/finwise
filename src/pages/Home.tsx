@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { useAuth } from '../auth'
+import Dashboard from '../components/Dashboard'
 import ReviewCard, { type ReviewItem } from '../components/ReviewCard'
 import TransactionList from '../components/TransactionList'
 import { Screen } from '../components/ui'
@@ -139,6 +140,7 @@ export default function Home() {
         </div>
       )}
 
+      <Dashboard mode={mode} version={version} />
       <TransactionList mode={mode} version={version} onLoaded={setHasDemo} />
 
       {hasDemo && (

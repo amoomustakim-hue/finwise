@@ -122,6 +122,30 @@ export async function syncMonoAccount(accountRowId: string): Promise<{ imported:
   return { imported, status }
 }
 
+/**
+ * Widget flow (no webhook needed): the Connect widget's onSuccess gives the browser a temporary
+ * code (valid 10 minutes); we exchange it server-side for the permanent account id.
+ * Verified: POST /v2/accounts/auth { code } -> { id }   [Mono integration guide, 2026-10-21]
+ */
+export async function exchangeCode(code: string): Promise<string> {
+  const r = await mono<{ id?: string; data?: { id?: string } }>('/v2/accounts/auth', { method: 'POST', body: { code } })
+  const id = r.id ?? r.data?.id
+  if (!id) throw new Error('Mono did not return an account id')
+  return id
+}
+
+/** Our account row for a Mono account id, created for this user + mode if new. */
+export async function attachForUser(monoAccountId: string, userId: string, mode: 'personal' | 'business'): Promise<string> {
+  const existing = (await db()`select id, user_id from accounts where mono_account_id = ${monoAccountId}`) as { id: string; user_id: string }[]
+  if (existing[0]) {
+    if (existing[0].user_id !== userId) throw new Error('This bank account is linked to another FinWise user')
+    return existing[0].id
+  }
+  const id = await findOrCreateAccount({ userId, mode, bankName: 'Linked bank (Mono)', source: 'mono', last4: monoAccountId.slice(-4) })
+  await db()`update accounts set mono_account_id = ${monoAccountId} where id = ${id}`
+  return id
+}
+
 /** Create (or find) our account row for a Mono account id, using the link ref to find the user. */
 export async function attachMonoAccount(monoAccountId: string, ref: string | undefined): Promise<string | null> {
   const existing = (await db()`select id from accounts where mono_account_id = ${monoAccountId}`) as { id: string }[]

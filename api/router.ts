@@ -1,6 +1,8 @@
 // The single Vercel function for the whole API (Vercel Hobby allows only 12 functions).
 // vercel.json rewrites /api/<path> -> /api/router?__path=<path>; handlers live in server/routes.
+import * as budgets from '../server/routes/budgets.js'
 import * as categorise from '../server/routes/categorise.js'
+import * as dashboard from '../server/routes/dashboard.js'
 import * as demo from '../server/routes/demo.js'
 import * as health from '../server/routes/health.js'
 import * as imports from '../server/routes/imports.js'
@@ -12,6 +14,7 @@ import * as login from '../server/routes/auth/login.js'
 import * as logout from '../server/routes/auth/logout.js'
 import * as signup from '../server/routes/auth/signup.js'
 import * as monoConnect from '../server/routes/mono/connect.js'
+import * as monoExchange from '../server/routes/mono/exchange.js'
 import * as monoSync from '../server/routes/mono/sync.js'
 import * as monoWebhook from '../server/routes/mono/webhook.js'
 
@@ -21,6 +24,8 @@ type RouteModule = Partial<Record<'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE', H
 const ROUTES: Record<string, RouteModule> = {
   health,
   me,
+  dashboard,
+  budgets,
   imports,
   transactions,
   demo,
@@ -31,6 +36,7 @@ const ROUTES: Record<string, RouteModule> = {
   'auth/login': login,
   'auth/logout': logout,
   'mono/connect': monoConnect,
+  'mono/exchange': monoExchange,
   'mono/sync': monoSync,
   'mono/webhook': monoWebhook,
 }
