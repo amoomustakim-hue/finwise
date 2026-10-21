@@ -139,6 +139,10 @@ export function businessDemo(opts: { userId: string; name: string; businessName:
     if (dow === 5) add(d, `TRANSFER TO ${opts.name.toUpperCase()} - OWNER PAY`, 20000)
     if (dom === 2) add(d, 'POS TERMINAL MAINTENANCE FEE', 1500)
     if (r.chance(0.03)) add(d, 'TRANSFER TO LAGOS STATE IRS - LEVY', 5000)
+    // One unusually large credit last month (a family loan?) that should NOT count as a sale:
+    // the app should ask about it instead of assuming.
+    const lastMonth = new Date(Date.UTC(opts.today.getUTCFullYear(), opts.today.getUTCMonth() - 1, 15))
+    if (iso(d) === iso(lastMonth)) add(d, 'TRANSFER FROM CHIDI EZE', 250000, 'credit')
   }
   return toRows(withCharges(ev), 450000)
 }

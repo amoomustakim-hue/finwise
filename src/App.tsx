@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import Import from './pages/Import'
 import Landing from './pages/Landing'
 import Onboarding from './pages/Onboarding'
+import Review from './pages/Review'
 import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
 
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/onboarding" element={<Guard need="onboarding"><Onboarding /></Guard>} />
           <Route path="/home" element={<Guard need="ready"><Home /></Guard>} />
           <Route path="/import" element={<Guard need="ready"><Import /></Guard>} />
+          <Route path="/review" element={<Guard need="ready"><Review /></Guard>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

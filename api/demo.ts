@@ -1,6 +1,7 @@
 // POST   /api/demo — load (or reload) labelled sample data for each mode the user has turned on.
 // DELETE /api/demo — remove all sample data (real imports are untouched).
 import { requireUser } from '../server/auth.js'
+import { categoriseWithRules } from '../server/categorise/engine.js'
 import { db } from '../server/db.js'
 import { businessDemo, personalDemo } from '../server/demo/generate.js'
 import { handle } from '../server/http.js'
@@ -33,6 +34,7 @@ export const POST = handle(async (request) => {
     const rows = businessDemo({ userId: user.id, name: user.name, businessName: user.business_name, today })
     result.business = await saveRows({ userId: user.id, accountId, mode: 'business', source: 'demo', rows })
   }
+  await categoriseWithRules(user.id)
   return Response.json({ loaded: result })
 })
 

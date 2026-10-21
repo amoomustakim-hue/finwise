@@ -1,10 +1,11 @@
-// Home shell with the Personal/Business switch. Dashboards plug in here next.
-import { useState } from 'react'
+// Home: Personal/Business switch, the newest transaction needing an answer, and the transaction list.
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { useAuth } from '../auth'
+import ReviewCard, { type ReviewItem } from '../components/ReviewCard'
 import TransactionList from '../components/TransactionList'
 import { Screen } from '../components/ui'
-import type { Mode } from '../lib/api'
+import { api, type Mode } from '../lib/api'
 
 const MODE_KEY = 'fw_mode'
 
@@ -17,11 +18,30 @@ function rememberedMode(): Mode | null {
   }
 }
 
+type Review = { items: ReviewItem[]; counts: { pending: number; suggested: number } }
+
 export default function Home() {
   const { user, signOut } = useAuth()
   const both = !!user?.uses_personal && !!user?.uses_business
   const fallback: Mode = user?.uses_personal ? 'personal' : 'business'
   const [mode, setMode] = useState<Mode>(() => (both ? (rememberedMode() ?? fallback) : fallback))
+  const [version, setVersion] = useState(0) // bump to reload everything
+  const [review, setReview] = useState<Review | null>(null)
+  const [hasDemo, setHasDemo] = useState(false)
+  const [toast, setToast] = useState('')
+
+  const refresh = useCallback(() => setVersion((v) => v + 1), [])
+
+  useEffect(() => {
+    api<Review>(`/review?mode=${mode}`).then(setReview).catch(() => setReview(null))
+  }, [mode, version])
+
+  // Once per visit: let the AI suggest categories for unknown merchants, then refresh.
+  useEffect(() => {
+    api<{ suggested: number }>('/categorise', { method: 'POST', body: {} })
+      .then((r) => r.suggested > 0 && refresh())
+      .catch(() => {})
+  }, [refresh])
 
   function switchTo(m: Mode) {
     setMode(m)
@@ -31,6 +51,22 @@ export default function Home() {
       /* storage unavailable: switching still works for this visit */
     }
   }
+
+  async function simulate(type: 'unknown' | 'suggested') {
+    await api('/simulate', { method: 'POST', body: { mode, type } })
+    setToast('')
+    refresh()
+  }
+
+  // Show the newest transaction if it arrived in the last 3 days (the "just detected" case);
+  // otherwise the oldest-standing question first.
+  const isRecent = (i: ReviewItem) => Date.now() - new Date(i.occurred_at).getTime() < 3 * 86400000
+  const newest = review?.items.reduce<ReviewItem | undefined>((a, b) => (!a || b.occurred_at > a.occurred_at ? b : a), undefined)
+  const next =
+    (newest && isRecent(newest) ? newest : undefined) ??
+    review?.items.find((i) => i.category_status === 'pending') ??
+    review?.items[0]
+  const waiting = (review?.counts.pending ?? 0) + (review?.counts.suggested ?? 0)
 
   return (
     <Screen>
@@ -49,9 +85,7 @@ export default function Home() {
               role="tab"
               aria-selected={mode === m}
               onClick={() => switchTo(m)}
-              className={`rounded-lg py-2 text-sm font-semibold capitalize ${
-                mode === m ? 'bg-white shadow' : 'text-slate-600'
-              }`}
+              className={`rounded-lg py-2 text-sm font-semibold capitalize ${mode === m ? 'bg-white shadow' : 'text-slate-600'}`}
             >
               {m}
             </button>
@@ -67,7 +101,45 @@ export default function Home() {
           + Add transactions
         </Link>
       </div>
-      <TransactionList mode={mode} />
+
+      {toast && <p className="mb-3 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{toast}</p>}
+
+      {next && (
+        <div className="mb-6">
+          <ReviewCard
+            key={next.id}
+            item={next}
+            headline={
+              isRecent(next) ? 'New transaction detected' : next.category_status === 'suggested' ? 'Please confirm' : 'Needs your answer'
+            }
+            onDone={(msg) => {
+              setToast(msg)
+              refresh()
+            }}
+          />
+          {waiting > 1 && (
+            <Link to={`/review?mode=${mode}`} className="mt-2 block text-center text-sm font-semibold text-brand">
+              {waiting - 1} more to review →
+            </Link>
+          )}
+        </div>
+      )}
+
+      <TransactionList mode={mode} version={version} onLoaded={setHasDemo} />
+
+      {hasDemo && (
+        <section className="mt-6 rounded-2xl bg-amber-50 p-4 text-sm ring-1 ring-amber-200">
+          <p className="font-semibold text-amber-900">Demo tools (sample data)</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button onClick={() => simulate('unknown')} className="rounded-lg bg-white px-3 py-1.5 font-medium ring-1 ring-amber-300">
+              Simulate unclear transaction
+            </button>
+            <button onClick={() => simulate('suggested')} className="rounded-lg bg-white px-3 py-1.5 font-medium ring-1 ring-amber-300">
+              Simulate known merchant
+            </button>
+          </div>
+        </section>
+      )}
     </Screen>
   )
 }

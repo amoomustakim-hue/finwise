@@ -16,5 +16,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["api", "server", "scripts", "neon.ts"]
+  "include": ["api", "server", "scripts", "shared", "neon.ts"]
 }

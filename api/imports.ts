@@ -1,6 +1,7 @@
 // POST /api/imports — upload a bank statement (PDF or CSV) as multipart form data.
 // Fields: file, mode ('personal' | 'business'), bankName.
 import { requireUser } from '../server/auth.js'
+import { categoriseWithRules } from '../server/categorise/engine.js'
 import { parseCsv } from '../server/import/csv.js'
 import { reconcile, type ParsedRow } from '../server/import/parse-utils.js'
 import { parseStatementText, pdfText } from '../server/import/pdf.js'
@@ -54,6 +55,7 @@ export const POST = handle(async (request) => {
 
   const accountId = await findOrCreateAccount({ userId: user.id, mode, bankName, source: 'import' })
   const imported = await saveRows({ userId: user.id, accountId, mode, source: 'import', rows })
+  await categoriseWithRules(user.id) // instant keyword pass; AI runs separately via /api/categorise
   const dates = rows.map((r) => r.date).sort()
   const balances = reconcile(rows)
 
