@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './auth'
 import Home from './pages/Home'
 import Import from './pages/Import'
 import Landing from './pages/Landing'
+import MonoReturn from './pages/MonoReturn'
 import Onboarding from './pages/Onboarding'
 import Review from './pages/Review'
 import SignIn from './pages/SignIn'
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/home" element={<Guard need="ready"><Home /></Guard>} />
           <Route path="/import" element={<Guard need="ready"><Import /></Guard>} />
           <Route path="/review" element={<Guard need="ready"><Review /></Guard>} />
+          <Route path="/mono/return" element={<Guard need="ready"><MonoReturn /></Guard>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

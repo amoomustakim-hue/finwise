@@ -1,5 +1,5 @@
 // Add data: upload a real statement (PDF/CSV) or load clearly labelled sample data.
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { useAuth } from '../auth'
 import { Button, ErrorText, Screen } from '../components/ui'
@@ -27,7 +27,24 @@ export default function Import() {
   const [mode, setMode] = useState<Mode>(defaultMode)
   const [result, setResult] = useState<ImportResult | null>(null)
   const [error, setError] = useState('')
-  const [busy, setBusy] = useState<'import' | 'demo' | null>(null)
+  const [busy, setBusy] = useState<'import' | 'demo' | 'mono' | null>(null)
+  const [mono, setMono] = useState<{ enabled: boolean; testMode: boolean; accounts: unknown[] } | null>(null)
+
+  useEffect(() => {
+    api<{ enabled: boolean; testMode: boolean; accounts: unknown[] }>('/mono/sync').then(setMono).catch(() => setMono(null))
+  }, [])
+
+  async function connectMono() {
+    setBusy('mono')
+    setError('')
+    try {
+      const { url } = await api<{ url: string }>('/mono/connect', { method: 'POST', body: { mode } })
+      window.location.href = url // Mono's hosted linking page; it returns to /mono/return
+    } catch (err) {
+      setError((err as Error).message)
+      setBusy(null)
+    }
+  }
 
   async function onImport(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -66,9 +83,28 @@ export default function Import() {
       <Link to="/home" className="mb-4 text-sm text-slate-500">← Back</Link>
       <h1 className="text-2xl font-bold">Add your transactions</h1>
       <p className="mb-6 mt-2 text-slate-600">
-        Download a statement from your bank app (PDF or CSV) and upload it here.
+        Connect your bank, or download a statement from your bank app (PDF or CSV) and upload it here.
       </p>
 
+      {mono?.enabled && (
+        <div className="mb-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+          <div className="flex items-center justify-between">
+            <p className="font-semibold">Connect your bank</p>
+            {mono.testMode && <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-800">Test mode</span>}
+          </div>
+          <p className="mt-1 text-sm text-slate-600">
+            Link your account securely through Mono. FinWise can only read your transactions. It can't move money.
+          </p>
+          <Button className="mt-3" onClick={connectMono} disabled={busy !== null}>
+            {busy === 'mono' ? 'Opening Mono…' : 'Connect with Mono'}
+          </Button>
+          {mono.accounts.length > 0 && (
+            <p className="mt-2 text-xs text-slate-500">{mono.accounts.length} account(s) linked. They refresh each time you open FinWise.</p>
+          )}
+        </div>
+      )}
+
+      <p className="mb-2 text-sm font-semibold text-slate-700">{mono?.enabled ? 'Or import a statement' : 'Import a statement'}</p>
       <form onSubmit={onImport} className="flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
         {both && (
           <div className="grid grid-cols-2 rounded-xl bg-slate-100 p-1">

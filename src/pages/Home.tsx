@@ -36,11 +36,25 @@ export default function Home() {
     api<Review>(`/review?mode=${mode}`).then(setReview).catch(() => setReview(null))
   }, [mode, version])
 
-  // Once per visit: let the AI suggest categories for unknown merchants, then refresh.
+  // Once per visit: pull new transactions from linked banks (Mono), then let the AI suggest
+  // categories for unknown merchants, then refresh if anything changed.
   useEffect(() => {
-    api<{ suggested: number }>('/categorise', { method: 'POST', body: {} })
-      .then((r) => r.suggested > 0 && refresh())
-      .catch(() => {})
+    ;(async () => {
+      let changed = false
+      try {
+        const m = await api<{ results?: { imported?: number }[] }>('/mono/sync', { method: 'POST', body: {} })
+        changed = (m.results ?? []).some((x) => (x.imported ?? 0) > 0)
+      } catch {
+        /* offline or Mono unavailable: carry on with what we have */
+      }
+      try {
+        const c = await api<{ suggested: number }>('/categorise', { method: 'POST', body: {} })
+        changed = changed || c.suggested > 0
+      } catch {
+        /* AI unavailable: rules already ran at import time */
+      }
+      if (changed) refresh()
+    })()
   }, [refresh])
 
   function switchTo(m: Mode) {
