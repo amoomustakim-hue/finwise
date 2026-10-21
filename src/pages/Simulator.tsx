@@ -58,9 +58,9 @@ type Result = {
 }
 
 const VERDICT = {
-  ok: { label: 'Looks manageable', icon: '✓', cls: 'bg-emerald-50 text-emerald-800 ring-emerald-200' },
-  tight: { label: 'Possible, but tight', icon: '!', cls: 'bg-amber-50 text-amber-900 ring-amber-200' },
-  shortfall: { label: 'You could run short', icon: '✕', cls: 'bg-red-50 text-red-800 ring-red-200' },
+  ok: { label: 'Looks manageable', icon: '✓', cls: 'bg-[#e2f3ea] text-[#1f6b4f] ring-[#bfe3cf]' },
+  tight: { label: 'Possible, but tight', icon: '!', cls: 'bg-[#fff4e0] text-[#7a4b00] ring-[#f2d29b]' },
+  shortfall: { label: 'You could run short', icon: '✕', cls: 'bg-[#fde4e4] text-[#c03535] ring-[#f5c2c2]' },
 }
 
 const fmtDay = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })
@@ -80,8 +80,15 @@ export default function Simulator() {
   useEffect(() => {
     const p = PRESETS[mode].find((x) => x.type === type) ?? PRESETS[mode][0]
     if (p.type !== type) setType(p.type)
-    setValues(p.defaults)
-  }, [mode, type])
+    // An amount from "Ask FinWise" (?scenario=purchase&amount=50000, in naira) fills the first money field.
+    const asked = Number(params.get('amount'))
+    const money = p.fields.find((f) => f.kind === 'naira')
+    if (money && money.kind === 'naira' && asked > 0 && params.get('scenario') === p.type) {
+      setValues({ ...p.defaults, [money.key]: Math.min(Math.max(Math.round(asked), money.min), money.max) * 100 })
+    } else {
+      setValues(p.defaults)
+    }
+  }, [mode, type, params])
 
   // Recalculate shortly after inputs stop changing.
   const body = useMemo(() => JSON.stringify({ mode, scenario: { type: preset.type, ...values } }), [mode, preset.type, values])
@@ -103,7 +110,7 @@ export default function Simulator() {
 
   return (
     <AppShell title="Decision Simulator">
-      <p className="mb-5 max-w-3xl text-sm text-slate-600">
+      <p className="mb-5 max-w-3xl text-sm text-[#6a6165]">
         Test a decision before you make it. We project your balance day by day for the next 60 days, using your own
         regular payments and spending habits, then show what changes.
       </p>
@@ -117,21 +124,21 @@ export default function Simulator() {
                 key={p.type}
                 onClick={() => setType(p.type)}
                 aria-pressed={p.type === type}
-                className={`rounded-xl bg-white p-3 text-left ring-1 transition ${p.type === type ? 'ring-2 ring-brand' : 'ring-slate-200 hover:ring-slate-300'}`}
+                className={`rounded-[12px] bg-white p-3 text-left ring-1 transition ${p.type === type ? 'ring-2 ring-brand' : 'ring-black/[0.06] hover:ring-black/10'}`}
               >
                 <span className="block text-sm font-semibold">{p.title}</span>
-                <span className="block text-xs text-slate-500">{p.question}</span>
+                <span className="block text-xs text-[#8a8185]">{p.question}</span>
               </button>
             ))}
           </div>
 
-          <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+          <div className="flex flex-col gap-4 rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06]">
             {preset.fields.map((f) =>
               f.kind === 'category' ? (
                 <label key={f.key} className="block text-sm">
                   <span className="mb-1 block font-medium">{f.label}</span>
                   <select
-                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2"
+                    className="w-full rounded-[12px] border border-black/10 bg-white px-3 py-2"
                     value={String(values[f.key] ?? '')}
                     onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
                   >
@@ -159,7 +166,7 @@ export default function Simulator() {
                     <input
                       inputMode="numeric"
                       aria-label={`${f.label} in naira`}
-                      className="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2"
+                      className="mt-2 w-full rounded-[12px] border border-black/10 px-3 py-2"
                       value={Math.round(Number(values[f.key]) / 100)}
                       onChange={(e) => {
                         const n = Number(e.target.value.replace(/[^\d]/g, '')) || 0
@@ -175,10 +182,10 @@ export default function Simulator() {
 
         {/* Results */}
         <section className="flex flex-col gap-4 lg:col-span-8" aria-live="polite">
-          {error && <p className="rounded-2xl bg-white p-4 text-red-700 ring-1 ring-red-200">{error}</p>}
+          {error && <p className="rounded-[18px] bg-white p-4 text-[#c03535] ring-1 ring-[#f5c2c2]">{error}</p>}
           {result && !error && (
             <>
-              <div className={`rounded-2xl p-4 ring-1 ${VERDICT[result.verdict].cls} ${loading ? 'opacity-70' : ''}`}>
+              <div className={`rounded-[18px] p-4 ring-1 ${VERDICT[result.verdict].cls} ${loading ? 'opacity-70' : ''}`}>
                 <p className="flex items-center gap-2 text-sm font-semibold">
                   <span aria-hidden className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs ring-1 ring-current">{VERDICT[result.verdict].icon}</span>
                   {VERDICT[result.verdict].label}
@@ -188,37 +195,37 @@ export default function Simulator() {
               </div>
 
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-                <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                  <p className="text-xs text-slate-500">Lowest balance</p>
-                  <p className={`mt-1 text-lg font-semibold ${result.result.lowestKobo < 0 ? 'text-red-700' : ''}`}>{formatNaira(result.result.lowestKobo)}</p>
-                  <p className="text-xs text-slate-500">around {fmtDay(result.result.lowestDate)} · was {formatNaira(result.baseline.lowestKobo)}</p>
+                <div className="rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06]">
+                  <p className="text-xs text-[#8a8185]">Lowest balance</p>
+                  <p className={`mt-1 text-lg font-semibold ${result.result.lowestKobo < 0 ? 'text-[#c03535]' : ''}`}>{formatNaira(result.result.lowestKobo)}</p>
+                  <p className="text-xs text-[#8a8185]">around {fmtDay(result.result.lowestDate)} · was {formatNaira(result.baseline.lowestKobo)}</p>
                 </div>
-                <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                  <p className="text-xs text-slate-500">At month end</p>
-                  <p className={`mt-1 text-lg font-semibold ${result.result.monthEndKobo < 0 ? 'text-red-700' : ''}`}>{formatNaira(result.result.monthEndKobo)}</p>
-                  <p className="text-xs text-slate-500">was {formatNaira(result.baseline.monthEndKobo)}</p>
+                <div className="rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06]">
+                  <p className="text-xs text-[#8a8185]">At month end</p>
+                  <p className={`mt-1 text-lg font-semibold ${result.result.monthEndKobo < 0 ? 'text-[#c03535]' : ''}`}>{formatNaira(result.result.monthEndKobo)}</p>
+                  <p className="text-xs text-[#8a8185]">was {formatNaira(result.baseline.monthEndKobo)}</p>
                 </div>
                 {result.monthlyProfit && (
-                  <div className="col-span-2 rounded-2xl bg-white p-4 ring-1 ring-slate-200 lg:col-span-1">
-                    <p className="text-xs text-slate-500">Usual monthly profit</p>
+                  <div className="col-span-2 rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06] lg:col-span-1">
+                    <p className="text-xs text-[#8a8185]">Usual monthly profit</p>
                     <p className="mt-1 text-lg font-semibold">{formatNaira(result.monthlyProfit.scenarioKobo)}</p>
-                    <p className="text-xs text-slate-500">was {formatNaira(result.monthlyProfit.baselineKobo)}</p>
+                    <p className="text-xs text-[#8a8185]">was {formatNaira(result.monthlyProfit.baselineKobo)}</p>
                   </div>
                 )}
               </div>
 
-              <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+              <div className="rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06]">
                 <h2 className="mb-1 font-semibold">Projected balance, next 60 days</h2>
                 <BalanceChart days={result.days} />
                 <details className="mt-3 text-sm">
                   <summary className="cursor-pointer font-semibold text-brand">Show as a table</summary>
                   <table className="mt-2 w-full text-left text-xs tabular-nums">
-                    <thead className="text-slate-500">
+                    <thead className="text-[#8a8185]">
                       <tr><th className="py-1">Date</th><th>As things are</th><th>With this decision</th></tr>
                     </thead>
                     <tbody>
                       {result.days.filter((_, i) => i % 7 === 6 || i === result.days.length - 1).map((d) => (
-                        <tr key={d.date} className="border-t border-slate-100">
+                        <tr key={d.date} className="border-t border-black/[0.05]">
                           <td className="py-1">{fmtDay(d.date)}</td><td>{formatNaira(d.baselineKobo)}</td><td>{formatNaira(d.scenarioKobo)}</td>
                         </tr>
                       ))}
@@ -227,16 +234,16 @@ export default function Simulator() {
                 </details>
               </div>
 
-              <div className="rounded-2xl bg-white p-4 text-sm ring-1 ring-slate-200">
+              <div className="rounded-[18px] bg-white p-4 text-sm ring-1 ring-black/[0.06]">
                 <h2 className="mb-1 font-semibold">How we worked this out</h2>
-                <ul className="list-disc pl-5 text-slate-600">
+                <ul className="list-disc pl-5 text-[#6a6165]">
                   {result.assumptions.map((a) => <li key={a}>{a}</li>)}
                   <li>This is an estimate, not a guarantee.</li>
                 </ul>
               </div>
             </>
           )}
-          {!result && !error && <p className="text-slate-500">Working it out…</p>}
+          {!result && !error && <p className="text-[#8a8185]">Working it out…</p>}
         </section>
       </div>
     </AppShell>

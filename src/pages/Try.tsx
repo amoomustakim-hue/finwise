@@ -33,14 +33,14 @@ export default function Try() {
           <>
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand border-t-transparent" />
             <p className="text-lg font-semibold">Setting up your demo…</p>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[#6a6165]">
               You'll explore FinWise as Ada, who has a salary and runs Mama Nkechi Foods. Everything you see is sample data.
             </p>
           </>
         ) : (
           <>
             <p className="text-lg font-semibold">We couldn't start the demo</p>
-            <p className="text-sm text-slate-600">{error}</p>
+            <p className="text-sm text-[#6a6165]">{error}</p>
             <Link to="/" className="font-semibold text-brand">Back</Link>
           </>
         )}

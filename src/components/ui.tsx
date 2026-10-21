@@ -5,7 +5,7 @@ import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react
 export function Screen({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-2">
-      <aside className="hidden flex-col justify-between bg-brand p-12 text-white lg:flex">
+      <aside className="hidden flex-col justify-between bg-brand-grad p-12 text-white lg:flex">
         <span className="text-3xl font-bold">FinWise</span>
         <div>
           <p className="text-4xl font-semibold leading-tight">Turn your financial data into smarter decisions.</p>
@@ -26,10 +26,10 @@ export function Button({
   const styles =
     variant === 'primary'
       ? 'bg-brand text-white hover:bg-brand-dark disabled:opacity-60'
-      : 'bg-white text-slate-900 ring-1 ring-slate-300 hover:bg-slate-100'
+      : 'bg-white text-[#1a1215] ring-1 ring-black/10 hover:bg-[#f4f2f3]'
   return (
     <button
-      className={`w-full rounded-xl px-4 py-3 font-semibold transition ${styles} ${className}`}
+      className={`w-full rounded-[12px] px-4 py-3 font-semibold transition ${styles} ${className}`}
       {...props}
     />
   )
@@ -38,9 +38,9 @@ export function Button({
 export function TextField({ label, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-medium text-slate-700">{label}</span>
+      <span className="mb-1 block text-sm font-medium text-[#4a4246]">{label}</span>
       <input
-        className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
+        className="w-full rounded-[12px] border border-black/10 bg-white px-4 py-3 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
         {...props}
       />
     </label>
@@ -50,7 +50,7 @@ export function TextField({ label, ...props }: InputHTMLAttributes<HTMLInputElem
 export function ErrorText({ children }: { children: ReactNode }) {
   if (!children) return null
   return (
-    <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+    <p role="alert" className="rounded-lg bg-[#fde4e4] px-3 py-2 text-sm text-[#c03535]">
       {children}
     </p>
   )

@@ -69,8 +69,8 @@ export default function BalanceChart({ days }: { days: Point[] }) {
 
   return (
     <figure className="relative">
-      <div className="mb-2 flex flex-wrap gap-4 text-xs text-slate-600" aria-hidden>
-        <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded bg-slate-400" /> As things are</span>
+      <div className="mb-2 flex flex-wrap gap-4 text-xs text-[#6a6165]" aria-hidden>
+        <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded bg-[#a39a9e]" /> As things are</span>
         <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded bg-brand" /> With this decision</span>
       </div>
       {/* The wrapper takes its width from the page (never from the chart), and the chart is
@@ -90,34 +90,34 @@ export default function BalanceChart({ days }: { days: Point[] }) {
         >
           {ticks.map((t) => (
             <g key={t}>
-              <line x1={PAD.left} x2={W - PAD.right} y1={y(t)} y2={y(t)} stroke="#e2e8f0" strokeWidth={1} />
-              <text x={PAD.left - 8} y={y(t) + 4} textAnchor="end" fontSize={11} fill="#64748b">{compact(t)}</text>
+              <line x1={PAD.left} x2={W - PAD.right} y1={y(t)} y2={y(t)} stroke="#efeaec" strokeWidth={1} />
+              <text x={PAD.left - 8} y={y(t) + 4} textAnchor="end" fontSize={11} fill="#8a8185">{compact(t)}</text>
             </g>
           ))}
-          {lo < 0 && <line x1={PAD.left} x2={W - PAD.right} y1={y(0)} y2={y(0)} stroke="#d03b3b" strokeDasharray="4 4" strokeWidth={1} />}
+          {lo < 0 && <line x1={PAD.left} x2={W - PAD.right} y1={y(0)} y2={y(0)} stroke="#d64545" strokeDasharray="4 4" strokeWidth={1} />}
           {[0, Math.floor(last / 2), last].map((i) => (
-            <text key={i} x={x(i)} y={H - 8} textAnchor={i === 0 ? 'start' : i === last ? 'end' : 'middle'} fontSize={11} fill="#64748b">{fmtDay(days[i].date)}</text>
+            <text key={i} x={x(i)} y={H - 8} textAnchor={i === 0 ? 'start' : i === last ? 'end' : 'middle'} fontSize={11} fill="#8a8185">{fmtDay(days[i].date)}</text>
           ))}
-          <path d={base} fill="none" stroke="#94a3b8" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+          <path d={base} fill="none" stroke="#b0a6aa" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
           <path d={scen} fill="none" stroke="var(--color-brand)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-          <text x={W - PAD.right + 6} y={ys.s + 4} fontSize={11} fill="#0f172a" fontWeight={600}>{compact(days[last].scenarioKobo)}</text>
-          <text x={W - PAD.right + 6} y={ys.b + 4} fontSize={11} fill="#64748b">{compact(days[last].baselineKobo)}</text>
+          <text x={W - PAD.right + 6} y={ys.s + 4} fontSize={11} fill="#1a1215" fontWeight={600}>{compact(days[last].scenarioKobo)}</text>
+          <text x={W - PAD.right + 6} y={ys.b + 4} fontSize={11} fill="#8a8185">{compact(days[last].baselineKobo)}</text>
           {hover !== null && (
             <g>
-              <line x1={x(hover)} x2={x(hover)} y1={PAD.top} y2={H - PAD.bottom} stroke="#94a3b8" strokeWidth={1} />
-              <circle cx={x(hover)} cy={y(days[hover].baselineKobo)} r={4} fill="#94a3b8" stroke="#fff" strokeWidth={2} />
+              <line x1={x(hover)} x2={x(hover)} y1={PAD.top} y2={H - PAD.bottom} stroke="#b0a6aa" strokeWidth={1} />
+              <circle cx={x(hover)} cy={y(days[hover].baselineKobo)} r={4} fill="#b0a6aa" stroke="#fff" strokeWidth={2} />
               <circle cx={x(hover)} cy={y(days[hover].scenarioKobo)} r={4} fill="var(--color-brand)" stroke="#fff" strokeWidth={2} />
             </g>
           )}
         </svg>
         {hover !== null && (
           <div
-            className="pointer-events-none absolute top-0 rounded-lg bg-white px-3 py-2 text-xs shadow-lg ring-1 ring-slate-200"
+            className="pointer-events-none absolute top-0 rounded-lg bg-white px-3 py-2 text-xs shadow-lg ring-1 ring-black/[0.06]"
             style={{ left: Math.max(0, Math.min(x(hover) - 75, W - 160)) }}
           >
             <p className="font-semibold">{fmtDay(days[hover].date)}</p>
-            <p className="text-slate-600">As things are: <span className="font-medium text-slate-900">{formatNaira(days[hover].baselineKobo)}</span></p>
-            <p className="text-slate-600">With decision: <span className="font-medium text-slate-900">{formatNaira(days[hover].scenarioKobo)}</span></p>
+            <p className="text-[#6a6165]">As things are: <span className="font-medium text-[#1a1215]">{formatNaira(days[hover].baselineKobo)}</span></p>
+            <p className="text-[#6a6165]">With decision: <span className="font-medium text-[#1a1215]">{formatNaira(days[hover].scenarioKobo)}</span></p>
           </div>
         )}
       </div>

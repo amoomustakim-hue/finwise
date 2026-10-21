@@ -121,41 +121,41 @@ export default function Import() {
 
   return (
     <AppShell title="Add your transactions">
-      <p className="mb-6 max-w-3xl text-slate-600">
+      <p className="mb-6 max-w-3xl text-[#6a6165]">
         Connect your bank, or download a statement from your bank app (PDF or CSV) and upload it here.
       </p>
 
       <div className="grid items-start gap-6 lg:grid-cols-2">
       <div>
       {mono?.enabled && (
-        <div className="mb-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        <div className="mb-4 rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06]">
           <div className="flex items-center justify-between">
             <p className="font-semibold">Connect your bank</p>
             {mono.testMode && <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-800">Test mode</span>}
           </div>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-[#6a6165]">
             Link your account securely through Mono. FinWise can only read your transactions. It can't move money.
           </p>
           <Button className="mt-3" onClick={connectMono} disabled={busy !== null}>
             {busy === 'mono' ? 'Opening Mono…' : 'Connect with Mono'}
           </Button>
-          {monoStatus && <p className="mt-2 text-sm text-slate-600">{monoStatus}</p>}
+          {monoStatus && <p className="mt-2 text-sm text-[#6a6165]">{monoStatus}</p>}
           {mono.accounts.length > 0 && (
-            <p className="mt-2 text-xs text-slate-500">{mono.accounts.length} account(s) linked. They refresh each time you open FinWise.</p>
+            <p className="mt-2 text-xs text-[#8a8185]">{mono.accounts.length} account(s) linked. They refresh each time you open FinWise.</p>
           )}
         </div>
       )}
 
-      <p className="mb-2 text-sm font-semibold text-slate-700">{mono?.enabled ? 'Or import a statement' : 'Import a statement'}</p>
-      <form onSubmit={onImport} className="flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+      <p className="mb-2 text-sm font-semibold text-[#4a4246]">{mono?.enabled ? 'Or import a statement' : 'Import a statement'}</p>
+      <form onSubmit={onImport} className="flex flex-col gap-4 rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06]">
         {both && (
-          <div className="grid grid-cols-2 rounded-xl bg-slate-100 p-1">
+          <div className="grid grid-cols-2 rounded-[12px] bg-[#f4f2f3] p-1">
             {(['personal', 'business'] as const).map((m) => (
               <button
                 type="button"
                 key={m}
                 onClick={() => setMode(m)}
-                className={`rounded-lg py-2 text-sm font-semibold capitalize ${mode === m ? 'bg-white shadow' : 'text-slate-600'}`}
+                className={`rounded-lg py-2 text-sm font-semibold capitalize ${mode === m ? 'bg-white shadow' : 'text-[#6a6165]'}`}
               >
                 {m}
               </button>
@@ -163,14 +163,14 @@ export default function Import() {
           </div>
         )}
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">Bank</span>
-          <select name="bankName" required defaultValue="" className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3">
+          <span className="mb-1 block text-sm font-medium text-[#4a4246]">Bank</span>
+          <select name="bankName" required defaultValue="" className="w-full rounded-[12px] border border-black/10 bg-white px-4 py-3">
             <option value="" disabled>Choose your bank</option>
             {BANKS.map((b) => <option key={b}>{b}</option>)}
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">Statement file</span>
+          <span className="mb-1 block text-sm font-medium text-[#4a4246]">Statement file</span>
           <input name="file" type="file" accept=".pdf,.csv,application/pdf,text/csv" required className="w-full text-sm" />
         </label>
         <ErrorText>{error}</ErrorText>
@@ -180,7 +180,7 @@ export default function Import() {
 
       <div className="flex flex-col gap-4">
       {result && (
-        <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-900 ring-1 ring-emerald-200">
+        <div className="rounded-[18px] bg-[#e2f3ea] p-4 text-sm text-[#1f6b4f] ring-1 ring-[#bfe3cf]">
           <p className="font-semibold">
             Imported {result.imported} transactions · {formatDate(result.from)} – {formatDate(result.to)}
           </p>
@@ -193,9 +193,9 @@ export default function Import() {
         </div>
       )}
 
-      <div className="rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-200">
-        <p className="font-semibold text-amber-900">No statement handy?</p>
-        <p className="mt-1 text-sm text-amber-800">
+      <div className="rounded-[18px] bg-[#fff4e0] p-4 ring-1 ring-[#f2d29b]">
+        <p className="font-semibold text-[#7a4b00]">No statement handy?</p>
+        <p className="mt-1 text-sm text-[#7a4b00]">
           Load realistic sample data to explore FinWise. It's clearly marked as sample data and can be removed anytime.
         </p>
         <Button variant="secondary" className="mt-3" onClick={loadDemo} disabled={busy !== null}>

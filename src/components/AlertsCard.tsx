@@ -37,26 +37,26 @@ export default function AlertsCard() {
 
   if (state === 'loading') return null
   return (
-    <section className="rounded-2xl bg-white p-4 ring-1 ring-slate-200 lg:p-5">
+    <section className="rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06] lg:p-5">
       <h2 className="font-semibold">Transaction alerts</h2>
       {state === 'on' && (
         <>
-          <p className="mt-1 text-sm text-slate-600">On for this device. We'll alert you when new transactions arrive and ask what they were for.</p>
-          <button onClick={turnOff} className="mt-2 text-sm font-semibold text-slate-500 underline">Turn off</button>
+          <p className="mt-1 text-sm text-[#6a6165]">On for this device. We'll alert you when new transactions arrive and ask what they were for.</p>
+          <button onClick={turnOff} className="mt-2 text-sm font-semibold text-[#8a8185] underline">Turn off</button>
         </>
       )}
       {state === 'off' && (
         <>
-          <p className="mt-1 text-sm text-slate-600">Get a notification when new money moves in your linked accounts.</p>
-          <button onClick={turnOn} className="mt-3 w-full rounded-xl bg-brand py-2 text-sm font-semibold text-white">Turn on alerts</button>
+          <p className="mt-1 text-sm text-[#6a6165]">Get a notification when new money moves in your linked accounts.</p>
+          <button onClick={turnOn} className="mt-3 w-full rounded-[12px] bg-brand py-2 text-sm font-semibold text-white">Turn on alerts</button>
         </>
       )}
-      {state === 'blocked' && <p className="mt-1 text-sm text-slate-600">Notifications are blocked for FinWise. Allow them in your browser's site settings, then reload.</p>}
+      {state === 'blocked' && <p className="mt-1 text-sm text-[#6a6165]">Notifications are blocked for FinWise. Allow them in your browser's site settings, then reload.</p>}
       {state === 'ios-install' && (
-        <p className="mt-1 text-sm text-slate-600">On iPhone, alerts work once FinWise is on your Home Screen: tap Share, then "Add to Home Screen", and open it from there.</p>
+        <p className="mt-1 text-sm text-[#6a6165]">On iPhone, alerts work once FinWise is on your Home Screen: tap Share, then "Add to Home Screen", and open it from there.</p>
       )}
-      {state === 'unsupported' && <p className="mt-1 text-sm text-slate-600">This browser can't receive alerts. Try Chrome on Android or desktop.</p>}
-      {msg && <p className="mt-2 text-xs text-emerald-700">{msg}</p>}
+      {state === 'unsupported' && <p className="mt-1 text-sm text-[#6a6165]">This browser can't receive alerts. Try Chrome on Android or desktop.</p>}
+      {msg && <p className="mt-2 text-xs text-[#1f8a5b]">{msg}</p>}
     </section>
   )
 }

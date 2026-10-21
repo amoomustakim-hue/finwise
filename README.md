@@ -63,3 +63,25 @@ Overview, Analytics, AI Insight, Create Budget and Activity, rebuilt from the ap
 a title, a line and dots. Edit the slides in `SLIDES` at the bottom of that file.
 
 **Photo (optional):** add `public/auth/woman.webp` and it replaces the slideshow.
+
+## The app (signed in)
+
+Rebuilt from the five app designs, in magenta (`#980042`) with Poppins. The colours live in
+`src/index.css` (`--color-brand`, `bg-brand-grad`) and the app icon is `public/icon.svg`.
+
+- **Layout** (`src/components/AppShell.tsx`): on phones, a tab bar with Overview, Analytics, a raised
+  button for quick actions (Simulator, Add transactions, Create a budget, Review), AI Insights and
+  Activities. On laptops, a side panel with every page, the Personal/Business switch and sign out.
+- **Overview** `/home`: balance (tap the eye to hide amounts), the first AI insight, income and
+  expenses this month, the next transaction to answer and recent transactions. Tap the avatar to
+  switch Personal/Business or sign out.
+- **Analytics** `/analytics`: pick a month; total, daily average, money in and out by week, budgets
+  and spending by category (tap one to see its transactions).
+- **AI Insight** `/insights`: monthly summary, insight cards with "Why?", a suggested weekly target.
+  "Ask FinWise anything" opens the Decision Simulator on the matching scenario.
+- **Create Budget** `/budgets/new?category=`: weekly limits are saved as their monthly equivalent
+  (budgets are stored per month); other budgets are kept as they are.
+- **Activity** `/transactions`: search, All/Income/Expenses, filters, grouped by day.
+
+Shared pieces are in `src/app/` (`kit.tsx` icons, category colours and rows; `data.ts` types and
+loaders). No server changes were needed.
