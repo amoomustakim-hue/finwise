@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { AuthProvider, useAuth } from './auth'
 import Home from './pages/Home'
+import Import from './pages/Import'
 import Landing from './pages/Landing'
 import Onboarding from './pages/Onboarding'
 import SignIn from './pages/SignIn'
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/signin" element={<Guard need="guest"><SignIn /></Guard>} />
           <Route path="/onboarding" element={<Guard need="onboarding"><Onboarding /></Guard>} />
           <Route path="/home" element={<Guard need="ready"><Home /></Guard>} />
+          <Route path="/import" element={<Guard need="ready"><Import /></Guard>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

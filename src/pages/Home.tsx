@@ -1,6 +1,7 @@
 // Home shell with the Personal/Business switch. Dashboards plug in here next.
 import { useState } from 'react'
 import { useAuth } from '../auth'
+import TransactionList from '../components/TransactionList'
 import { Screen } from '../components/ui'
 import type { Mode } from '../lib/api'
 
@@ -57,16 +58,10 @@ export default function Home() {
         </div>
       )}
 
-      <section className="rounded-2xl bg-white p-6 ring-1 ring-slate-200">
-        <h1 className="text-lg font-semibold">
-          {mode === 'business' ? user?.business_name : `Hi ${user?.name.split(' ')[0]}`}
-        </h1>
-        <p className="mt-2 text-slate-600">
-          {mode === 'business'
-            ? 'Your sales, costs and profit will show here once you import transactions.'
-            : 'Your spending, budgets and insights will show here once you import transactions.'}
-        </p>
-      </section>
+      <h1 className="mb-4 text-lg font-semibold">
+        {mode === 'business' ? user?.business_name : `Hi ${user?.name.split(' ')[0]}`}
+      </h1>
+      <TransactionList mode={mode} />
     </Screen>
   )
 }

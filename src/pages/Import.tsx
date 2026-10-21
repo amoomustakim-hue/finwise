@@ -1,0 +1,127 @@
+// Add data: upload a real statement (PDF/CSV) or load clearly labelled sample data.
+import { useState, type FormEvent } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router'
+import { useAuth } from '../auth'
+import { Button, ErrorText, Screen } from '../components/ui'
+import { api, type Mode } from '../lib/api'
+import { formatDate } from '../lib/format'
+
+const BANKS = ['Zenith Bank', 'GTBank', 'Access Bank', 'First Bank', 'UBA', 'OPay', 'Kuda', 'Moniepoint', 'PalmPay', 'Other']
+
+type ImportResult = {
+  found: number
+  imported: number
+  duplicates: number
+  notRead: number
+  from: string
+  to: string
+  balanceCheck: { checked: number; matched: number }
+}
+
+export default function Import() {
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const [params] = useSearchParams()
+  const both = !!user?.uses_personal && !!user?.uses_business
+  const defaultMode: Mode = (params.get('mode') as Mode) ?? (user?.uses_personal ? 'personal' : 'business')
+  const [mode, setMode] = useState<Mode>(defaultMode)
+  const [result, setResult] = useState<ImportResult | null>(null)
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState<'import' | 'demo' | null>(null)
+
+  async function onImport(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const form = new FormData(e.currentTarget)
+    form.set('mode', mode)
+    setBusy('import')
+    setError('')
+    setResult(null)
+    try {
+      const res = await fetch('/api/imports', { method: 'POST', body: form, credentials: 'same-origin' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Import failed')
+      setResult(data)
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function loadDemo() {
+    setBusy('demo')
+    setError('')
+    try {
+      await api('/demo', { method: 'POST', body: {} })
+      navigate('/home')
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  return (
+    <Screen>
+      <Link to="/home" className="mb-4 text-sm text-slate-500">← Back</Link>
+      <h1 className="text-2xl font-bold">Add your transactions</h1>
+      <p className="mb-6 mt-2 text-slate-600">
+        Download a statement from your bank app (PDF or CSV) and upload it here.
+      </p>
+
+      <form onSubmit={onImport} className="flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        {both && (
+          <div className="grid grid-cols-2 rounded-xl bg-slate-100 p-1">
+            {(['personal', 'business'] as const).map((m) => (
+              <button
+                type="button"
+                key={m}
+                onClick={() => setMode(m)}
+                className={`rounded-lg py-2 text-sm font-semibold capitalize ${mode === m ? 'bg-white shadow' : 'text-slate-600'}`}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+        )}
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-slate-700">Bank</span>
+          <select name="bankName" required defaultValue="" className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3">
+            <option value="" disabled>Choose your bank</option>
+            {BANKS.map((b) => <option key={b}>{b}</option>)}
+          </select>
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-slate-700">Statement file</span>
+          <input name="file" type="file" accept=".pdf,.csv,application/pdf,text/csv" required className="w-full text-sm" />
+        </label>
+        <ErrorText>{error}</ErrorText>
+        <Button type="submit" disabled={busy !== null}>{busy === 'import' ? 'Reading statement…' : 'Import statement'}</Button>
+      </form>
+
+      {result && (
+        <div className="mt-4 rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-900 ring-1 ring-emerald-200">
+          <p className="font-semibold">
+            Imported {result.imported} transactions · {formatDate(result.from)} – {formatDate(result.to)}
+          </p>
+          {result.duplicates > 0 && <p>{result.duplicates} were already in FinWise and were skipped.</p>}
+          {result.notRead > 0 && <p>{result.notRead} lines couldn't be read.</p>}
+          {result.balanceCheck.checked > 0 && (
+            <p>Balance check: {result.balanceCheck.matched} of {result.balanceCheck.checked} running balances match.</p>
+          )}
+          <Link to="/home" className="mt-2 inline-block font-semibold underline">See transactions</Link>
+        </div>
+      )}
+
+      <div className="mt-8 rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-200">
+        <p className="font-semibold text-amber-900">No statement handy?</p>
+        <p className="mt-1 text-sm text-amber-800">
+          Load realistic sample data to explore FinWise. It's clearly marked as sample data and can be removed anytime.
+        </p>
+        <Button variant="secondary" className="mt-3" onClick={loadDemo} disabled={busy !== null}>
+          {busy === 'demo' ? 'Loading…' : 'Load sample data'}
+        </Button>
+      </div>
+    </Screen>
+  )
+}
