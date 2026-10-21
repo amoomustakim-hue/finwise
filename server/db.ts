@@ -2,7 +2,7 @@
 // Uses Neon's HTTP driver: no persistent connections, ideal for Vercel serverless.
 import { neon, type NeonQueryFunction } from '@neondatabase/serverless'
 import { parseEnv } from '@neon/env'
-import config from '../neon'
+import config from '../neon.js'
 
 let client: NeonQueryFunction<false, false> | null = null
 
