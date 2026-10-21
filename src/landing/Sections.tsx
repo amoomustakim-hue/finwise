@@ -133,7 +133,7 @@ const FEATURES: { k: string; title: string; body: string; visual: ReactNode; id?
 
 export function FeatureStack() {
   return (
-    <section className="relative px-4 pb-10 pt-24 sm:px-8 lg:pt-32">
+    <section id="features" className="relative px-4 pb-10 pt-24 sm:px-8 lg:pt-32">
       <div className="mx-auto max-w-[1240px]">
         <Reveal className="max-w-[760px]">
           <p className="eyebrow text-[var(--brand)]">What it does</p>
@@ -333,7 +333,7 @@ export function Finale() {
             <Mark className="h-7 w-7" /> FinWise
           </span>
           <nav className="flex flex-wrap gap-6">
-            <a href="#how" className="hover:text-[var(--ink)]">How it works</a>
+            <a href="#features" className="hover:text-[var(--ink)]">Features</a>
             <a href="#simulator" className="hover:text-[var(--ink)]">Simulator</a>
             <a href="#faq" className="hover:text-[var(--ink)]">FAQ</a>
             <Link to="/signin" className="hover:text-[var(--ink)]">Sign in</Link>

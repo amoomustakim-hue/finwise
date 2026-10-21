@@ -1,8 +1,8 @@
-// Two signature moments: the scroll that runs the calendar forward, and the simulator card.
+// The brand backdrop and the live Decision Simulator card.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { Arrow } from './kit'
-import { days, linePath, naira, nairaK, project, VERDICT, type What } from './model'
+import { linePath, naira, nairaK, project, VERDICT, type What } from './model'
 
 /** Deep magenta backdrop with slow-moving light. */
 export function BrandField({ className = '' }: { className?: string }) {
@@ -12,141 +12,6 @@ export function BrandField({ className = '' }: { className?: string }) {
       <span style={{ right: '-20vw', top: '10vh', width: '55vw', height: '55vw', background: 'radial-gradient(closest-side, rgb(40 0 17 / 0.55), transparent)' }} />
       <span style={{ left: '20vw', bottom: '-30vh', width: '60vw', height: '60vw', background: 'radial-gradient(closest-side, rgb(255 201 220 / 0.18), transparent)' }} />
     </div>
-  )
-}
-
-/* ─────────────────────────── The calendar ─────────────────────────── */
-
-const SPAN = 45
-/** Ada's story: salary is due on day 4 and doesn't come; FinWise warns her; it lands on day 18. */
-function storyLines() {
-  const cal = days(SPAN)
-  const nothing: number[] = [] // if nothing changes and the salary stays late
-  const acted: number[] = [] // what Ada actually did after the warning
-  let a = 312_000, b = 312_000
-  for (let i = 0; i < SPAN; i++) {
-    const spend = cal[i].dow === 6 || cal[i].dow === 0 ? 9_000 : 6_500
-    a -= spend
-    b -= i >= 4 ? spend - 2_000 : spend
-    if (i === 7) a -= 40_000 // family support, paused by Ada
-    if (i === 10) { a -= 120_000; b -= 120_000 } // rent share
-    if (i === 18) b += 380_000 // the late salary
-    nothing.push(a)
-    acted.push(b)
-  }
-  return { cal, nothing, acted }
-}
-
-export function Calendar() {
-  const wrap = useRef<HTMLDivElement>(null)
-  const [p, setP] = useState(0)
-  const { cal, nothing, acted } = useMemo(() => storyLines(), [])
-
-  useEffect(() => {
-    const on = () => {
-      const el = wrap.current
-      if (!el) return
-      const r = el.getBoundingClientRect()
-      setP(Math.min(1, Math.max(0, -r.top / (r.height - innerHeight))))
-    }
-    on()
-    addEventListener('scroll', on, { passive: true })
-    addEventListener('resize', on)
-    return () => {
-      removeEventListener('scroll', on)
-      removeEventListener('resize', on)
-    }
-  }, [])
-
-  // Eased so the early beats (today, salary late, Ada adjusts) each get their moment.
-  const day = Math.min(SPAN - 1, Math.round(Math.pow(p, 1.6) * (SPAN - 1)))
-  const W = 1000, H = 300
-  const min = Math.min(...nothing, ...acted, 0) * 1.1
-  const max = 720_000
-  const y = (v: number) => H - ((v - min) / (max - min)) * H
-  const zeroY = y(0)
-  const actedPath = linePath(acted, W, H, min, max)
-  const nothingPath = linePath(nothing, W, H, min, max)
-  const drawn = day / (SPAN - 1)
-  const warned = day >= 4
-  const zeroAt = nothing.findIndex((v) => v < 0)
-  const balance = acted[day]
-
-  const beat =
-    day < 4
-      ? { k: 'Today', t: `${naira(312_000)} in the bank.`, s: 'Salary is due on the 25th. Everything looks fine.' }
-      : day < 11
-        ? { k: 'Salary is late', t: 'It didn’t come.', s: `FinWise noticed the same day and ran the numbers: at this pace Ada hits ₦0 on ${cal[zeroAt]?.label ?? 'the 2nd'}.` }
-        : day < 18
-          ? { k: 'Ada adjusts', t: 'Pause one transfer. Spend ₦2,000 less a day.', s: 'Two small moves, suggested from her own spending. The red line is where she was heading.' }
-          : { k: 'Salary lands', t: 'Fourteen days late. Never below zero.', s: 'That’s the point of seeing next month first.' }
-
-  return (
-    <section id="how" ref={wrap} className="relative h-[420vh] text-white">
-      <div className="sticky top-0 flex h-svh flex-col overflow-hidden">
-        <BrandField />
-        <div className="relative mx-auto flex w-full max-w-[1240px] flex-1 flex-col px-5 pb-8 pt-24 sm:px-8 sm:pt-28">
-          <div className="flex items-start justify-between gap-6">
-            <div>
-              <p className="eyebrow text-white/60">How FinWise thinks</p>
-              <p className="mt-3 text-[clamp(30px,5vw,60px)] font-semibold leading-none tracking-[-0.03em]">
-                <span className="num">{cal[day].label}</span>
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="eyebrow text-white/60">Ada’s balance</p>
-              <p className={`num mt-3 text-[clamp(22px,3.4vw,40px)] font-semibold leading-none ${balance < 60_000 ? 'text-[var(--blush-2)]' : ''}`}>{naira(balance)}</p>
-            </div>
-          </div>
-
-          <div className="relative mt-6 min-h-0 flex-1">
-            <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible">
-              <defs>
-                <linearGradient id="cal-fill" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0" stopColor="#fff" stopOpacity="0.22" />
-                  <stop offset="1" stopColor="#fff" stopOpacity="0" />
-                </linearGradient>
-                <clipPath id="cal-clip">
-                  <rect x="0" y="-50" width={W * drawn} height={H + 100} />
-                </clipPath>
-              </defs>
-              <line x1="0" x2={W} y1={zeroY} y2={zeroY} stroke="#fff" strokeOpacity="0.25" strokeDasharray="4 6" vectorEffect="non-scaling-stroke" />
-              {/* where she was heading, once FinWise has seen it */}
-              <path d={nothingPath} fill="none" stroke="#ff9a7a" strokeWidth="2" strokeDasharray="6 7" vectorEffect="non-scaling-stroke" style={{ opacity: warned ? 0.9 : 0, transition: 'opacity 0.8s' }} />
-              <g clipPath="url(#cal-clip)">
-                <path d={`${actedPath} L${W},${H} L0,${H} Z`} fill="url(#cal-fill)" />
-                <path d={actedPath} fill="none" stroke="#fff" strokeWidth="3" vectorEffect="non-scaling-stroke" />
-              </g>
-            </svg>
-            {/* moving head */}
-            <span className="absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_0_6px_rgb(255_255_255/0.2),0_0_24px_rgb(255_255_255/0.8)]" style={{ left: `${drawn * 100}%`, top: `${(y(balance) / H) * 100}%` }} />
-            <span className="absolute -translate-x-1/2 text-[11px] font-medium text-white/60" style={{ left: '0%', top: `calc(${(zeroY / H) * 100}% + 6px)` }}>₦0</span>
-            {warned && zeroAt > 0 && (
-              <span className="absolute -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-full bg-[#ff9a7a] px-2.5 py-1 text-[11px] font-semibold text-[#3a0019] shadow-lg" style={{ left: `${(zeroAt / (SPAN - 1)) * 100}%`, top: `calc(${(zeroY / H) * 100}% - 10px)` }}>
-                ₦0 by {cal[zeroAt].label}
-              </span>
-            )}
-          </div>
-
-          <div className="relative mt-6 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
-            <div key={beat.k} className="rise max-w-[640px]">
-              <p className="eyebrow text-[var(--blush-2)]">{beat.k}</p>
-              <p className="mt-2 text-[clamp(26px,3.6vw,46px)] font-semibold leading-[1.08] tracking-[-0.03em]">{beat.t}</p>
-              <p className="mt-3 max-w-[520px] text-[15px] leading-relaxed text-white/75 sm:text-[16px]">{beat.s}</p>
-            </div>
-            <div className={`glass-dark w-full max-w-[340px] rounded-[22px] p-4 transition-all duration-700 ${warned && day < 18 ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0'}`}>
-              <p className="flex items-center gap-2 text-[13px] font-semibold">
-                <span className="h-2 w-2 rounded-full bg-[#ff9a7a]" /> FinWise · Heads up
-              </p>
-              <p className="mt-1 text-[14px] text-white/85">Your salary hasn’t landed. At this pace you could run short on {cal[zeroAt]?.label}. Tap to see what helps.</p>
-            </div>
-          </div>
-          <div className="relative mt-6 h-[3px] overflow-hidden rounded-full bg-white/15">
-            <div className="h-full bg-white" style={{ width: `${p * 100}%` }} />
-          </div>
-        </div>
-      </div>
-    </section>
   )
 }
 
