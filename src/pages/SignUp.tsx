@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useAuth } from '../auth'
-import { Button, ErrorText, Screen, TextField } from '../components/ui'
+import { AuthError, AuthShell, AuthTitle, DemoLink, Field, Submit } from '../landing/AuthShell'
 import { api, type User } from '../lib/api'
 
 export default function SignUp() {
@@ -30,20 +30,24 @@ export default function SignUp() {
   }
 
   return (
-    <Screen>
-      <h1 className="mb-6 text-2xl font-bold">Create your account</h1>
-      <form onSubmit={onSubmit} className="flex flex-col gap-4">
-        <TextField label="Full name" name="name" autoComplete="name" required />
-        <TextField label="Email" name="email" type="email" autoComplete="email" required />
-        <TextField label="Password" name="password" type="password" autoComplete="new-password" minLength={8} required />
-        <ErrorText>{error}</ErrorText>
-        <Button type="submit" disabled={busy}>
+    <AuthShell>
+      <AuthTitle title="Create your account" sub="It takes a minute. Your bank stays read-only." />
+      <form onSubmit={onSubmit} className="flex flex-col gap-5">
+        <Field label="Full name" icon="user" name="name" autoComplete="name" placeholder="Ada Okafor" required />
+        <Field label="Email" icon="mail" name="email" type="email" autoComplete="email" placeholder="you@example.com" required />
+        <Field label="Password" icon="lock" name="password" type="password" autoComplete="new-password" minLength={8} placeholder="At least 8 characters" required />
+        <AuthError>{error}</AuthError>
+        <Submit type="submit" disabled={busy}>
           {busy ? 'Creating account…' : 'Create account'}
-        </Button>
+        </Submit>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-600">
-        Already have an account? <Link to="/signin" className="font-semibold text-brand">Sign in</Link>
+      <DemoLink />
+      <p className="mt-8 text-center text-[14px] text-[var(--muted)]">
+        Already have an account?{' '}
+        <Link to="/signin" className="font-semibold text-[var(--brand)]">
+          Sign in
+        </Link>
       </p>
-    </Screen>
+    </AuthShell>
   )
 }
