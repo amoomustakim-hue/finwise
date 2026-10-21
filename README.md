@@ -8,8 +8,7 @@ Poppins, scoped to the landing page so the app screens are unchanged.
 
 | Section | What happens |
 | --- | --- |
-| Hero | Headline, demo and sign-up buttons, and a phone running the FinWise home screen that leans toward the pointer, with glass notes around it |
-| How FinWise thinks | Pinned: scrolling runs the calendar forward. Ada's salary is late, FinWise warns her, she adjusts, and the salary lands without her going below ₦0 |
+| Hero | Centred headline, demo and sign-up buttons, three key facts, and the phone running the FinWise home screen underneath |
 | Decision Simulator | Pick a decision, drag the slider, and the next 60 days, lowest balance and verdict update live |
 | What it does | Stacking cards: sorted transactions, early-warning budgets, insights with their evidence, and a phone that flips between Personal and Business |
 | Notifications | A lock screen with "Is this Food?" that you can answer |
