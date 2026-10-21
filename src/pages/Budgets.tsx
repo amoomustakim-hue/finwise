@@ -95,7 +95,7 @@ export default function Budgets() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[15px] font-medium">{i.category}</p>
                       <p className="truncate text-[12px] text-[#8a8185]">
-                        {i.avgMonthlyKobo ? `Usually ${naira(i.avgMonthlyKobo)} a month` : 'No recent spending'}
+                        {i.avgMonthlyKobo ? `Avg ${naira(i.avgMonthlyKobo)}/month` : 'No recent spending'}
                       </p>
                     </div>
                     <label className="flex w-[120px] shrink-0 items-center gap-1 rounded-[12px] bg-[#f4f2f3] px-3 py-2 focus-within:bg-white focus-within:ring-[1.5px] focus-within:ring-brand">
