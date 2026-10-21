@@ -1,11 +1,12 @@
-// AI Insight (Rejoice's design): a monthly summary, "Ask FinWise" (answered by the Decision
-// Simulator), insight cards with their evidence and an action, and a suggested budget to set.
+// AI Insight (Rejoice's design): a monthly summary, "Ask FinWise" (answered from the user's own
+// data by /api/ask; "what if" questions run the Decision Simulator), insight cards with their
+// evidence and an action, and a suggested budget to set.
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import AppShell from '../components/AppShell'
 import { useDashboard, useInsights, type DashboardData, type Insight } from '../app/data'
 import { card, Icon, monthLabel, naira, Sparkle, type IconName } from '../app/kit'
-import type { Mode } from '../lib/api'
+import { api, type Mode } from '../lib/api'
 import { useMode } from '../mode'
 
 type Tag = { tag: string; fg: string; bg: string; icon: IconName }
@@ -22,47 +23,89 @@ const TAGS: [RegExp, Tag][] = [
 const PATTERN: Tag = { tag: 'Spending pattern', fg: '#d9800f', bg: '#fff1dc', icon: 'cart' }
 const tagFor = (id: string) => TAGS.find(([re]) => re.test(id))?.[1] ?? PATTERN
 
-/** Questions people can tap; each opens the simulator on the matching scenario. */
-const ASK: Record<Mode, { q: string; to: string }[]> = {
+/** Questions people can tap; each is answered right here, like a typed question. */
+const ASK: Record<Mode, string[]> = {
   personal: [
-    { q: 'Can I afford a ₦50,000 purchase this week?', to: '/simulator?scenario=purchase&amount=50000' },
-    { q: 'What if my salary is two weeks late?', to: '/simulator?scenario=salary_delay' },
-    { q: 'What if I save ₦20,000 every month?', to: '/simulator?scenario=save_monthly&amount=20000' },
-    { q: 'What if my rent goes up?', to: '/simulator?scenario=expense_change' },
+    'How much did I spend on food this month?',
+    'Where is my money going?',
+    'Can I afford ₦50,000 this week?',
+    'What if my salary is two weeks late?',
   ],
   business: [
-    { q: 'Can I afford a new staff member?', to: '/simulator?scenario=hire' },
-    { q: 'What if sales drop by 20%?', to: '/simulator?scenario=revenue_drop' },
-    { q: 'What if a customer pays late?', to: '/simulator?scenario=late_payment' },
-    { q: 'What if my supplier raises prices?', to: '/simulator?scenario=supplier_increase' },
+    'Who are my best customers?',
+    'Which day do I sell the most?',
+    'Can I afford to hire someone at ₦60,000 a month?',
+    'What if my supplier raises prices by 10%?',
   ],
 }
 
-/** Turn a typed question into a simulator scenario, picking out an amount like "50k" or "₦120,000". */
-function route(text: string, mode: Mode) {
-  const t = text.toLowerCase()
-  const m = t.match(/(\d[\d,]*(?:\.\d+)?)\s*(k|m|million|thousand)?\b/)
-  const n = m ? Number(m[1].replace(/,/g, '')) * (m[2]?.startsWith('m') ? 1_000_000 : m[2] === 'k' || m[2] === 'thousand' ? 1_000 : 1) : 0
-  const amount = n >= 100 ? `&amount=${Math.round(n)}` : ''
-  const pick =
-    mode === 'business'
-      ? /hire|staff|employ|worker/.test(t)
-        ? 'hire'
-        : /sales|revenue/.test(t) && /drop|fall|slow|low/.test(t)
-          ? 'revenue_drop'
-          : /customer|client|owe|pays? late/.test(t)
-            ? 'late_payment'
-            : /supplier|stock|restock|raw/.test(t)
-              ? 'supplier_increase'
-              : 'purchase'
-      : /salary|paid late|pay ?day|delay/.test(t)
-        ? 'salary_delay'
-        : /save|saving/.test(t)
-          ? 'save_monthly'
-          : /rent|bill|rise|go(es)? up|increase/.test(t)
-            ? 'expense_change'
-            : 'purchase'
-  return `/simulator?scenario=${pick}${pick === 'purchase' || pick === 'save_monthly' || pick === 'hire' || pick === 'late_payment' ? amount : ''}`
+type AskAnswer = {
+  text: string
+  evidence: string[]
+  actions: { label: string; to: string }[]
+  verdict?: 'ok' | 'tight' | 'shortfall'
+  mode: Mode
+}
+type Turn = { id: number; q: string; answer?: AskAnswer; error?: string }
+
+const VERDICT_STYLE = {
+  ok: { label: 'Looks manageable', fg: '#1f8a5b', bg: '#e2f3ea', icon: 'check' as const },
+  tight: { label: 'Possible, but tight', fg: '#b26a00', bg: '#fff1dc', icon: 'alert' as const },
+  shortfall: { label: 'You could run short', fg: '#d64545', bg: '#fde4e4', icon: 'alert' as const },
+}
+
+/** One question and its answer, with the evidence behind it and where to look next. */
+function AnswerCard({ turn }: { turn: Turn }) {
+  const [open, setOpen] = useState(false)
+  const a = turn.answer
+  const v = a?.verdict ? VERDICT_STYLE[a.verdict] : null
+  return (
+    <article className="rounded-[16px] border border-black/[0.06] bg-white p-4 shadow-[0_6px_18px_-14px_rgb(0_0_0/0.35)]">
+      <p className="text-[13px] font-medium text-[#7a7175]">{turn.q}</p>
+      {!a && !turn.error && (
+        <p className="mt-2 flex items-center gap-2 text-[14px] text-[#8a8185]">
+          <Sparkle className="h-4 w-4 animate-pulse text-brand" /> Working it out from your transactions…
+        </p>
+      )}
+      {turn.error && <p className="mt-2 text-[14px] text-[#d64545]">{turn.error}</p>}
+      {a && (
+        <>
+          {v && (
+            <span className="mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ background: v.bg, color: v.fg }}>
+              <Icon name={v.icon} className="h-3 w-3" stroke={2.6} /> {v.label}
+            </span>
+          )}
+          <p className="mt-2 text-[15px] font-semibold leading-snug">{a.text}</p>
+          {open && a.evidence.length > 0 && (
+            <ul className="mt-2.5 flex flex-col gap-1 rounded-[12px] bg-[#fafafa] p-3 text-[12px] text-[#6a6165]">
+              {a.evidence.map((e) => (
+                <li key={e} className="flex gap-2">
+                  <Icon name="check" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" stroke={2.4} />
+                  {e}
+                </li>
+              ))}
+            </ul>
+          )}
+          {(a.evidence.length > 0 || a.actions.length > 0) && (
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-black/[0.05] pt-3">
+              {a.evidence.length > 0 ? (
+                <button type="button" onClick={() => setOpen((o) => !o)} className="text-[12px] font-medium text-[#8a8185] hover:text-[#1a1215]" aria-expanded={open}>
+                  {open ? 'Hide why' : 'Why?'}
+                </button>
+              ) : (
+                <span />
+              )}
+              {a.actions.map((x) => (
+                <Link key={x.to} to={x.to} className="flex items-center gap-1 text-[13px] font-semibold text-brand">
+                  {x.label} <Icon name="chevron" className="h-4 w-4" />
+                </Link>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </article>
+  )
 }
 
 function summary(d: DashboardData) {
@@ -124,10 +167,11 @@ function InsightCard({ i }: { i: Insight }) {
 
 export default function Insights() {
   const { mode } = useMode()
-  const navigate = useNavigate()
   const dash = useDashboard(mode)
   const insights = useInsights(mode)
   const [q, setQ] = useState('')
+  const [thread, setThread] = useState<Turn[]>([])
+  const [asking, setAsking] = useState(false)
   const d = dash.data
   const s = d && summary(d)
   const list = insights.data?.insights ?? []
@@ -139,9 +183,27 @@ export default function Insights() {
   // Signals not already covered by an insight card.
   const noticed = d?.indicators.filter((i) => !/^(trend-|budget-|supplier-costs$)/.test(i.id)) ?? []
 
+  async function askQuestion(question: string) {
+    const text = question.trim()
+    if (!text || asking) return
+    const id = Date.now()
+    setAsking(true)
+    setQ('')
+    // Newest first; keep the last few answers on screen.
+    setThread((t) => [{ id, q: text }, ...t].slice(0, 5))
+    const settle = (patch: Partial<Turn>) => setThread((t) => t.map((x) => (x.id === id ? { ...x, ...patch } : x)))
+    try {
+      settle({ answer: await api<AskAnswer>('/ask', { method: 'POST', body: { mode, question: text } }) })
+    } catch (err) {
+      settle({ error: (err as Error).message })
+    } finally {
+      setAsking(false)
+    }
+  }
+
   function ask(e: FormEvent) {
     e.preventDefault()
-    if (q.trim()) navigate(route(q, mode))
+    askQuestion(q)
   }
 
   const summaryCard = (
@@ -177,18 +239,31 @@ export default function Insights() {
           aria-label="Ask FinWise anything"
           className="min-w-0 flex-1 bg-transparent text-[14px] outline-none placeholder:text-[#9a9195]"
         />
-        <button type="submit" aria-label="Ask" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand text-white disabled:opacity-40" disabled={!q.trim()}>
+        <button type="submit" aria-label="Ask" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand text-white disabled:opacity-40" disabled={!q.trim() || asking}>
           <Icon name="send" className="h-4 w-4" stroke={2.2} />
         </button>
       </form>
       <div className="-mx-5 mt-2.5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:px-0">
         {ASK[mode].map((a) => (
-          <Link key={a.q} to={a.to} className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#ffe9f1] px-3 py-1.5 text-[12px] text-brand transition hover:bg-[#ffd9e7]">
-            <Sparkle className="h-3.5 w-3.5" /> {a.q}
-          </Link>
+          <button
+            key={a}
+            type="button"
+            disabled={asking}
+            onClick={() => askQuestion(a)}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#ffe9f1] px-3 py-1.5 text-[12px] text-brand transition hover:bg-[#ffd9e7] disabled:opacity-60"
+          >
+            <Sparkle className="h-3.5 w-3.5" /> {a}
+          </button>
         ))}
       </div>
-      <p className="mt-1.5 text-[11px] text-[#9a9195]">Answered by the Decision Simulator, using your own regular payments and habits.</p>
+      <p className="mt-1.5 text-[11px] text-[#9a9195]">Answered from your own transactions. “What if” questions run the Decision Simulator.</p>
+      {thread.length > 0 && (
+        <div className="mt-3 flex flex-col gap-3" aria-live="polite">
+          {thread.map((t) => (
+            <AnswerCard key={t.id} turn={t} />
+          ))}
+        </div>
+      )}
     </section>
   )
 

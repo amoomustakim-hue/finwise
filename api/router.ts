@@ -1,5 +1,6 @@
 // The single Vercel function for the whole API (Vercel Hobby allows only 12 functions).
 // vercel.json rewrites /api/<path> -> /api/router?__path=<path>; handlers live in server/routes.
+import * as ask from '../server/routes/ask.js'
 import * as budgets from '../server/routes/budgets.js'
 import * as categorise from '../server/routes/categorise.js'
 import * as dashboard from '../server/routes/dashboard.js'
@@ -31,6 +32,7 @@ const ROUTES: Record<string, RouteModule> = {
   health,
   me,
   dashboard,
+  ask,
   budgets,
   insights,
   push,

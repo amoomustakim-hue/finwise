@@ -47,8 +47,8 @@ export const trusted = (t: Tx) =>
   (t.category_status === 'suggested' && (t.category_source === 'rule' || t.category_source === 'user_rule') && (t.category_confidence ?? 0) >= 0.85)
 
 /** Counts toward total spending: expenses plus not-yet-categorised debits (never internal transfers). */
-const isSpend = (t: Tx) => t.direction === 'debit' && (t.kind === 'expense' || t.kind === null)
-const isIncome = (t: Tx) => t.direction === 'credit' && t.kind === 'income' && trusted(t)
+export const isSpend = (t: Tx) => t.direction === 'debit' && (t.kind === 'expense' || t.kind === null)
+export const isIncome = (t: Tx) => t.direction === 'credit' && t.kind === 'income' && trusted(t)
 /** In a business account, "Personal expense" is real money out but not a business cost. */
 const isBusinessCost = (t: Tx) => isSpend(t) && t.category !== 'Personal expense'
 
