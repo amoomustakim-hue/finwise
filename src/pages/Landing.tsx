@@ -1,22 +1,17 @@
 import '../landing/landing.css'
 import { Hero, Nav } from '../landing/Hero'
-import { Faq, FeatureStack, Finale, Marquee, Notifications, StoryPhoto, Trust } from '../landing/Sections'
-import { Simulator } from '../landing/Story'
+import { Closing, Faq, Features, Proof } from '../landing/Sections'
 
 export default function Landing() {
   return (
-    <div className="lp">
+    <div className="lp bg-white">
       <Nav />
       <main>
         <Hero />
-        <Marquee />
-        <Simulator />
-        <FeatureStack />
-        <Notifications />
-        <Trust />
-        <StoryPhoto />
+        <Proof />
+        <Features />
         <Faq />
-        <Finale />
+        <Closing />
       </main>
     </div>
   )

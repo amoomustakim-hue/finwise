@@ -137,3 +137,13 @@
   .lp .reveal { opacity: 1; transform: none; }
   .lp .words .w { opacity: 1; }
 }
+
+/* Light range for cards on white */
+.lp input[type='range'].range-light { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 999px; background: linear-gradient(90deg, var(--brand) var(--p, 50%), #f1e3e9 var(--p, 50%)); outline: none; }
+.lp input[type='range'].range-light::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 6px solid var(--brand); box-shadow: 0 4px 12px rgb(152 0 66 / 0.35); cursor: grab; }
+.lp input[type='range'].range-light::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 5px solid var(--brand); cursor: grab; }
+
+/* Faint blueprint guide lines in the hero */
+.lp .guides { position: absolute; inset: 0; pointer-events: none; }
+.lp .guides .v { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed rgb(255 255 255 / 0.75); }
+.lp .guides .h { position: absolute; left: 0; right: 0; height: 0; border-top: 1px dashed rgb(255 255 255 / 0.75); }

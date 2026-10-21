@@ -8,16 +8,13 @@ Poppins, scoped to the landing page so the app screens are unchanged.
 
 | Section | What happens |
 | --- | --- |
-| Hero | Centred headline, demo and sign-up buttons, three key facts, and the phone running the FinWise home screen underneath |
-| Decision Simulator | Pick a decision, drag the slider, and the next 60 days, lowest balance and verdict update live |
-| What it does | Stacking cards: sorted transactions, early-warning budgets, insights with their evidence, and a phone that flips between Personal and Business |
-| Notifications | A lock screen with "Is this Food?" that you can answer |
-| Trust, story, FAQ, finale | Read-only bank access, Ada's story, questions, and the call to action |
+| Hero | A soft sky (`public/landing/sky-*.webp`, upscaled from the supplied photo) with faint guide lines, a centred headline, one black button, and the phone rising out of the clouds |
+| Proof | Read-only badge, three key facts, and four cards of things FinWise will tell you |
+| Features | Four rows of text beside a pale card: the working Decision Simulator, budgets and insights, personal and business, and "Is this Food?" notifications, with phones peeking out |
+| FAQs and closing | A simple FAQ, then the sky again with the final call to action |
 
 All numbers on the landing page are sample data for the demo persona Ada.
 
-**Photos:** add `public/landing/story.webp` (a wide portrait) and it becomes the background
-of the story section; until then that section uses a brand-coloured light field.
 
 ---
 
