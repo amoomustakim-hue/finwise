@@ -3,7 +3,8 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { useAuth } from '../auth'
 import AppShell from '../components/AppShell'
-import { Button, ErrorText } from '../components/ui'
+import { ErrorText } from '../components/ui'
+import { card, Icon } from '../app/kit'
 import { api, type Mode } from '../lib/api'
 import { formatDate } from '../lib/format'
 import { useMode } from '../mode'
@@ -34,6 +35,7 @@ export default function Import() {
   const [busy, setBusy] = useState<'import' | 'demo' | 'mono' | null>(null)
   const [mono, setMono] = useState<MonoStatus | null>(null)
   const [monoStatus, setMonoStatus] = useState('')
+  const [file, setFile] = useState<File | null>(null)
 
   useEffect(() => {
     api<MonoStatus>('/mono/sync').then(setMono).catch(() => setMono(null))
@@ -119,90 +121,136 @@ export default function Import() {
     }
   }
 
+  const primary = 'flex w-full items-center justify-center gap-2 rounded-[14px] py-3.5 text-[15px] font-semibold transition hover:brightness-110 disabled:opacity-60'
+
   return (
-    <AppShell title="Add your transactions">
-      <p className="mb-6 max-w-3xl text-[#6a6165]">
-        Connect your bank, or download a statement from your bank app (PDF or CSV) and upload it here.
-      </p>
+    <AppShell title="Add transactions">
+      <p className="-mt-3 mb-5 text-center text-[13px] text-[#7a7175] lg:-mt-5 lg:text-left">Connect your bank, or upload a statement from your bank app.</p>
 
-      <div className="grid items-start gap-6 lg:grid-cols-2">
-      <div>
-      {mono?.enabled && (
-        <div className="mb-4 rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06]">
-          <div className="flex items-center justify-between">
-            <p className="font-semibold">Connect your bank</p>
-            {mono.testMode && <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-800">Test mode</span>}
-          </div>
-          <p className="mt-1 text-sm text-[#6a6165]">
-            Link your account securely through Mono. FinWise can only read your transactions. It can't move money.
-          </p>
-          <Button className="mt-3" onClick={connectMono} disabled={busy !== null}>
-            {busy === 'mono' ? 'Opening Mono…' : 'Connect with Mono'}
-          </Button>
-          {monoStatus && <p className="mt-2 text-sm text-[#6a6165]">{monoStatus}</p>}
-          {mono.accounts.length > 0 && (
-            <p className="mt-2 text-xs text-[#8a8185]">{mono.accounts.length} account(s) linked. They refresh each time you open FinWise.</p>
+      <div className="grid items-start gap-5 lg:grid-cols-2 lg:gap-6">
+        <div className="flex min-w-0 flex-col gap-5">
+          {both && (
+            <div>
+              <p className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-[#7a7175]">These transactions are for</p>
+              <div className="grid grid-cols-2 rounded-[12px] bg-[#f4f2f3] p-1 text-[14px]" role="tablist" aria-label="Mode">
+                {(['personal', 'business'] as const).map((m) => (
+                  <button
+                    type="button"
+                    key={m}
+                    role="tab"
+                    aria-selected={mode === m}
+                    onClick={() => setMode(m)}
+                    className={`rounded-[9px] py-2.5 capitalize transition ${mode === m ? 'bg-white font-semibold text-brand shadow-[0_2px_6px_rgb(0_0_0/0.08)]' : 'text-[#5a5155]'}`}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
-        </div>
-      )}
 
-      <p className="mb-2 text-sm font-semibold text-[#4a4246]">{mono?.enabled ? 'Or import a statement' : 'Import a statement'}</p>
-      <form onSubmit={onImport} className="flex flex-col gap-4 rounded-[18px] bg-white p-4 ring-1 ring-black/[0.06]">
-        {both && (
-          <div className="grid grid-cols-2 rounded-[12px] bg-[#f4f2f3] p-1">
-            {(['personal', 'business'] as const).map((m) => (
-              <button
-                type="button"
-                key={m}
-                onClick={() => setMode(m)}
-                className={`rounded-lg py-2 text-sm font-semibold capitalize ${mode === m ? 'bg-white shadow' : 'text-[#6a6165]'}`}
-              >
-                {m}
+          {mono?.enabled && (
+            <section className="relative overflow-hidden rounded-[18px] bg-brand-grad p-5 text-white">
+              <span aria-hidden="true" className="absolute -bottom-12 -right-12 h-40 w-40 rounded-full border-[6px] border-white/10" />
+              <div className="flex items-center justify-between">
+                <span className="grid h-11 w-11 place-items-center rounded-[12px] bg-white/15 ring-1 ring-white/25">
+                  <Icon name="bank" />
+                </span>
+                {mono.testMode && <span className="rounded-full bg-white/20 px-2.5 py-1 text-[11px] font-semibold">Test mode</span>}
+              </div>
+              <p className="mt-4 text-[18px] font-semibold">Connect your bank</p>
+              <p className="mt-1 text-[13px] text-white/80">Link your account securely through Mono. FinWise can only read your transactions. It can't move money.</p>
+              <button onClick={connectMono} disabled={busy !== null} className={`${primary} mt-4 bg-white text-brand`}>
+                {busy === 'mono' ? 'Opening Mono…' : 'Connect with Mono'}
               </button>
-            ))}
-          </div>
-        )}
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-[#4a4246]">Bank</span>
-          <select name="bankName" required defaultValue="" className="w-full rounded-[12px] border border-black/10 bg-white px-4 py-3">
-            <option value="" disabled>Choose your bank</option>
-            {BANKS.map((b) => <option key={b}>{b}</option>)}
-          </select>
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-[#4a4246]">Statement file</span>
-          <input name="file" type="file" accept=".pdf,.csv,application/pdf,text/csv" required className="w-full text-sm" />
-        </label>
-        <ErrorText>{error}</ErrorText>
-        <Button type="submit" disabled={busy !== null}>{busy === 'import' ? 'Reading statement…' : 'Import statement'}</Button>
-      </form>
-      </div>
-
-      <div className="flex flex-col gap-4">
-      {result && (
-        <div className="rounded-[18px] bg-[#e2f3ea] p-4 text-sm text-[#1f6b4f] ring-1 ring-[#bfe3cf]">
-          <p className="font-semibold">
-            Imported {result.imported} transactions · {formatDate(result.from)} – {formatDate(result.to)}
-          </p>
-          {result.duplicates > 0 && <p>{result.duplicates} were already in FinWise and were skipped.</p>}
-          {result.notRead > 0 && <p>{result.notRead} lines couldn't be read.</p>}
-          {result.balanceCheck.checked > 0 && (
-            <p>Balance check: {result.balanceCheck.matched} of {result.balanceCheck.checked} running balances match.</p>
+              {monoStatus && <p className="mt-2 text-[13px] text-white/85">{monoStatus}</p>}
+              {mono.accounts.length > 0 && (
+                <p className="mt-2 flex items-center gap-1.5 text-[12px] text-white/80">
+                  <Icon name="checkCircle" className="h-4 w-4" /> {mono.accounts.length} account(s) linked. They refresh each time you open FinWise.
+                </p>
+              )}
+            </section>
           )}
-          <Link to="/home" className="mt-2 inline-block font-semibold underline">See transactions</Link>
-        </div>
-      )}
 
-      <div className="rounded-[18px] bg-[#fff4e0] p-4 ring-1 ring-[#f2d29b]">
-        <p className="font-semibold text-[#7a4b00]">No statement handy?</p>
-        <p className="mt-1 text-sm text-[#7a4b00]">
-          Load realistic sample data to explore FinWise. It's clearly marked as sample data and can be removed anytime.
-        </p>
-        <Button variant="secondary" className="mt-3" onClick={loadDemo} disabled={busy !== null}>
-          {busy === 'demo' ? 'Loading…' : 'Load sample data'}
-        </Button>
-      </div>
-      </div>
+          <form onSubmit={onImport} className={`${card} flex flex-col gap-4 p-5`}>
+            <div>
+              <p className="text-[16px] font-semibold">{mono?.enabled ? 'Or upload a statement' : 'Upload a statement'}</p>
+              <p className="text-[13px] text-[#7a7175]">Download it from your bank app as a PDF or CSV.</p>
+            </div>
+            <label className="block">
+              <span className="mb-1.5 block text-[12px] font-semibold uppercase tracking-wide text-[#7a7175]">Bank</span>
+              <span className="relative flex items-center">
+                <select name="bankName" required defaultValue="" className="w-full appearance-none rounded-[12px] bg-[#f4f2f3] px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-brand/30">
+                  <option value="" disabled>Choose your bank</option>
+                  {BANKS.map((b) => <option key={b}>{b}</option>)}
+                </select>
+                <Icon name="chevronDown" className="pointer-events-none absolute right-3 h-4 w-4" />
+              </span>
+            </label>
+            <label className="flex cursor-pointer flex-col items-center rounded-[14px] border-[1.5px] border-dashed border-brand/30 bg-[#fff8fa] px-4 py-6 text-center transition hover:border-brand/60 focus-within:border-brand">
+              <span className="grid h-11 w-11 place-items-center rounded-full bg-blush text-brand">
+                <Icon name={file ? 'checkCircle' : 'upload'} />
+              </span>
+              <span className="mt-2.5 max-w-full truncate text-[14px] font-semibold">{file ? file.name : 'Choose your statement'}</span>
+              <span className="text-[12px] text-[#8a8185]">{file ? `${Math.max(1, Math.round(file.size / 1024))} KB · tap to change` : 'PDF or CSV'}</span>
+              <input name="file" type="file" accept=".pdf,.csv,application/pdf,text/csv" required className="sr-only" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+            </label>
+            <ErrorText>{error}</ErrorText>
+            <button type="submit" disabled={busy !== null} className={`${primary} bg-brand text-white shadow-[0_14px_28px_-14px_rgb(152_0_66/0.7)]`}>
+              {busy === 'import' ? 'Reading statement…' : 'Import statement'}
+            </button>
+          </form>
+        </div>
+
+        <div className="flex min-w-0 flex-col gap-5">
+          {result && (
+            <section className="rounded-[18px] bg-[#e2f3ea] p-5 text-[13px] text-[#1f6b4f]">
+              <p className="flex items-center gap-2 text-[15px] font-semibold">
+                <Icon name="checkCircle" /> Imported {result.imported} transactions
+              </p>
+              <p className="mt-1">
+                {formatDate(result.from)} to {formatDate(result.to)}
+              </p>
+              {result.duplicates > 0 && <p className="mt-1">{result.duplicates} were already in FinWise and were skipped.</p>}
+              {result.notRead > 0 && <p className="mt-1">{result.notRead} lines couldn't be read.</p>}
+              {result.balanceCheck.checked > 0 && (
+                <p className="mt-1">Balance check: {result.balanceCheck.matched} of {result.balanceCheck.checked} running balances match.</p>
+              )}
+              <Link to="/transactions" className="mt-3 inline-flex items-center gap-1 font-semibold">
+                See transactions <Icon name="chevron" className="h-4 w-4" />
+              </Link>
+            </section>
+          )}
+
+          <section className={`${card} p-5`}>
+            <p className="text-[15px] font-semibold">How it works</p>
+            <ul className="mt-3 flex flex-col gap-3 text-[13px] text-[#4a4246]">
+              {[
+                ['upload', 'Upload or connect', 'Your bank statement or a linked account.'],
+                ['grid', 'We sort it', 'Every transaction gets a category; FinWise asks you about the unclear ones.'],
+                ['brain', 'See what\u2019s coming', 'Your overview, analytics and insights update straight away.'],
+              ].map(([icon, t, b]) => (
+                <li key={t} className="flex gap-3">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-blush text-brand">
+                    <Icon name={icon as 'upload'} className="h-[18px] w-[18px]" />
+                  </span>
+                  <span>
+                    <span className="block font-semibold text-[#1a1215]">{t}</span>
+                    {b}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="rounded-[18px] bg-[#fff4e0] p-5">
+            <p className="text-[15px] font-semibold text-[#7a4b00]">No statement handy?</p>
+            <p className="mt-1 text-[13px] text-[#7a4b00]">Load realistic sample data to explore FinWise. It's clearly marked as sample data and can be removed anytime.</p>
+            <button onClick={loadDemo} disabled={busy !== null} className={`${primary} mt-4 bg-white text-[#7a4b00] ring-1 ring-[#f2d29b]`}>
+              {busy === 'demo' ? 'Loading…' : 'Load sample data'}
+            </button>
+          </section>
+        </div>
       </div>
     </AppShell>
   )

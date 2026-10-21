@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useAuth } from '../auth'
-import { Screen } from '../components/ui'
+import { StatusScreen, statusLink } from '../components/ui'
 import { api, type User } from '../lib/api'
 
 export default function Try() {
@@ -27,24 +27,18 @@ export default function Try() {
   }, [loading, user, navigate, setUser])
 
   return (
-    <Screen>
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-        {!error ? (
-          <>
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand border-t-transparent" />
-            <p className="text-lg font-semibold">Setting up your demo…</p>
-            <p className="text-sm text-[#6a6165]">
-              You'll explore FinWise as Ada, who has a salary and runs Mama Nkechi Foods. Everything you see is sample data.
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="text-lg font-semibold">We couldn't start the demo</p>
-            <p className="text-sm text-[#6a6165]">{error}</p>
-            <Link to="/" className="font-semibold text-brand">Back</Link>
-          </>
-        )}
-      </div>
-    </Screen>
+    !error ? (
+      <StatusScreen
+        busy
+        title="Setting up your demo…"
+        body="You'll explore FinWise as Ada, who has a salary and runs Mama Nkechi Foods. Everything you see is sample data."
+      />
+    ) : (
+      <StatusScreen busy={false} title="We couldn't start the demo" body={error}>
+        <Link to="/" className={statusLink}>
+          Back
+        </Link>
+      </StatusScreen>
+    )
   )
 }
