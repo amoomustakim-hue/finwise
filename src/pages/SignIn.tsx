@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useAuth } from '../auth'
-import { Button, ErrorText, Screen, TextField } from '../components/ui'
+import { AuthError, AuthShell, AuthTitle, DemoLink, Field, Submit } from '../landing/AuthShell'
 import { api, type User } from '../lib/api'
 
 export default function SignIn() {
@@ -30,19 +30,23 @@ export default function SignIn() {
   }
 
   return (
-    <Screen>
-      <h1 className="mb-6 text-2xl font-bold">Welcome back</h1>
-      <form onSubmit={onSubmit} className="flex flex-col gap-4">
-        <TextField label="Email" name="email" type="email" autoComplete="email" required />
-        <TextField label="Password" name="password" type="password" autoComplete="current-password" required />
-        <ErrorText>{error}</ErrorText>
-        <Button type="submit" disabled={busy}>
+    <AuthShell>
+      <AuthTitle title="Welcome back" sub="Sign in to see where your money is heading." />
+      <form onSubmit={onSubmit} className="flex flex-col gap-5">
+        <Field label="Email" icon="mail" name="email" type="email" autoComplete="email" placeholder="you@example.com" required />
+        <Field label="Password" icon="lock" name="password" type="password" autoComplete="current-password" placeholder="Your password" required />
+        <AuthError>{error}</AuthError>
+        <Submit type="submit" disabled={busy}>
           {busy ? 'Signing in…' : 'Sign in'}
-        </Button>
+        </Submit>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-600">
-        New to FinWise? <Link to="/signup" className="font-semibold text-brand">Create an account</Link>
+      <DemoLink />
+      <p className="mt-8 text-center text-[14px] text-[var(--muted)]">
+        New to FinWise?{' '}
+        <Link to="/signup" className="font-semibold text-[var(--brand)]">
+          Create an account
+        </Link>
       </p>
-    </Screen>
+    </AuthShell>
   )
 }

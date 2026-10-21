@@ -50,3 +50,12 @@ If you are developing a production application, we recommend enabling type-aware
 ```
 
 See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+
+## Sign in, sign up and onboarding
+
+`src/pages/SignIn.tsx`, `SignUp.tsx` and `Onboarding.tsx` use `src/landing/AuthShell.tsx`: a brand
+panel on the left and the form on the right (a brand header on phones). The fields, button and
+cards there are separate from `src/components/ui.tsx`, so the app screens are unchanged.
+
+**Photo:** add `public/auth/woman.webp` (portrait, about 1200×1600) and it fills the brand panel,
+with the app's insight and salary cards floating over it. Until then the panel shows the phone.
