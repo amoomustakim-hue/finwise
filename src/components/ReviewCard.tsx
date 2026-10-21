@@ -42,7 +42,7 @@ export default function ReviewCard({ item, headline, onDone }: { item: ReviewIte
 
   const options = showAll ? item.options : item.options.slice(0, QUICK)
   return (
-    <article className="rounded-[18px] bg-white p-4 shadow-[0_8px_24px_-18px_rgb(79_0_34/0.4)] ring-1 ring-black/[0.06] lg:p-5">
+    <article className="min-w-0 rounded-[18px] bg-white p-4 shadow-[0_8px_24px_-18px_rgb(79_0_34/0.4)] ring-1 ring-black/[0.06] lg:p-5">
       {headline && (
         <p className="mb-3 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-brand">
           <span className="h-1.5 w-1.5 rounded-full bg-brand" /> {headline}
@@ -51,7 +51,7 @@ export default function ReviewCard({ item, headline, onDone }: { item: ReviewIte
       <div className="flex items-center gap-3.5">
         <CategoryIcon category={picking ? null : item.category} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-medium">{merchant(item.narration)}</p>
+          <p className="line-clamp-2 [overflow-wrap:anywhere] text-[14px] font-medium leading-snug">{merchant(item.narration)}</p>
           <p className="text-[12px] text-[#8a8185]">
             {shortDate(item.occurred_at)} · {credit ? 'received' : 'paid'}
           </p>
@@ -72,7 +72,7 @@ export default function ReviewCard({ item, headline, onDone }: { item: ReviewIte
       {!picking ? (
         <div className="mt-3 grid grid-cols-2 gap-2">
           <button disabled={busy} onClick={() => answer(item.category!)} className="flex items-center justify-center gap-1.5 rounded-[12px] bg-brand py-2.5 text-[14px] font-semibold text-white disabled:opacity-60">
-            <Icon name="check" className="h-4 w-4" stroke={2.4} /> Yes, {item.category}
+            <Icon name="check" className="h-4 w-4" stroke={2.4} /> Yes, correct
           </button>
           <button disabled={busy} onClick={() => setPicking(true)} className="rounded-[12px] bg-[#f4f2f3] py-2.5 text-[14px] font-semibold text-[#2a2226] disabled:opacity-60">
             Change
