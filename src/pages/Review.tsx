@@ -81,20 +81,20 @@ export default function Review() {
         {items && items.length > 0 && (
           <>
             <div className="grid grid-cols-2 rounded-[12px] bg-[#f4f2f3] p-1" role="tablist" aria-label="Review">
-              {tabBtn('answer', 'Needs an answer', waiting.length)}
+              {tabBtn('answer', 'To answer', waiting.length)}
               {tabBtn('confirm', 'To confirm', toConfirm.length)}
             </div>
 
             {shown === 'confirm' && bulk > 0 && (
-              <div className="mt-4 flex items-center gap-3 rounded-[16px] bg-blush p-4">
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-[16px] bg-blush p-4">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-brand">
                   <Icon name="checkCircle" />
                 </span>
-                <p className="min-w-0 flex-1 text-[13px] text-[#4a4246]">
+                <p className="min-w-[150px] flex-1 text-[13px] text-[#4a4246]">
                   <span className="block font-semibold text-[#1a1215]">{bulk} confident suggestions</span>
                   Merchants FinWise already knows well.
                 </p>
-                <button onClick={confirmAll} className="shrink-0 rounded-[10px] bg-brand px-3.5 py-2 text-[13px] font-semibold text-white">
+                <button onClick={confirmAll} className="w-full shrink-0 rounded-[10px] sm:w-auto bg-brand px-3.5 py-2 text-[13px] font-semibold text-white">
                   Confirm all
                 </button>
               </div>
@@ -103,7 +103,7 @@ export default function Review() {
             {list.length === 0 ? (
               <p className="py-10 text-center text-[14px] text-[#8a8185]">{shown === 'answer' ? 'Nothing waiting for an answer.' : 'No suggestions to confirm.'}</p>
             ) : (
-              <div className="mt-4 grid gap-3 xl:grid-cols-2">
+              <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2">
                 {list.map((i) => (
                   <ReviewCard key={i.id} item={i} onDone={done} />
                 ))}
