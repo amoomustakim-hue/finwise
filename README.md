@@ -1,19 +1,9 @@
 # FinWise
 
-## Landing page (`/`)
-
-The signed-out front door lives in `src/landing/` and is rendered by `src/pages/Landing.tsx`.
-It uses the FinWise brand (deep magenta `#980042` into wine `#4f0022`, with white) and
-Poppins, scoped to the landing page so the app screens are unchanged.
-
-| Section | What happens |
-| --- | --- |
-| Hero | A soft sky (`public/landing/sky-*.webp`, upscaled from the supplied photo) with faint guide lines, a centred headline, one black button, and the phone rising out of the clouds |
-| Proof | Read-only badge, three key facts, and four cards of things FinWise will tell you |
-| Features | Four rows of text beside a pale card: the working Decision Simulator, budgets and insights, personal and business, and "Is this Food?" notifications, with phones peeking out |
-| FAQs and closing | A simple FAQ, then the sky again with the final call to action |
-
-All numbers on the landing page are sample data for the demo persona Ada.
+WHAT AI AGENT DID I USE?
+I used claude coding agent to help integrate monos apis cause i was aving issues doing it, then claude also supported me with the front end
+i also used claude to genereate the synthetic data displayed on the dashboards and across the screens 
+then i used claude ai chat in researching and refining my pitch deck and idea
 
 
 ---
